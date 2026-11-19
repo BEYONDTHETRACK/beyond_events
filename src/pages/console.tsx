@@ -453,7 +453,7 @@ export function Admin() {
     <div className="console">
       <nav className="side admin" aria-label="Administration">
         <div className="brand">[Nom du produit]<div className="small" style={{ color: '#D4CCE6', fontFamily: 'Inter', fontWeight: 400 }}>Administration plateforme</div></div>
-        <a className="active" href="#/admin">Vue d'ensemble</a><a href="#/admin">Organisations</a><a href="#/admin">Fiches à valider</a><a href="#/admin">Abonnements et factures</a><a href="#/admin">SMS et e-mails</a><a href="#/admin">Support</a>
+        <a className="active" href="#" onClick={(e) => e.preventDefault()}>Vue d'ensemble</a><a href="#" onClick={(e) => e.preventDefault()}>Organisations</a><a href="#" onClick={(e) => e.preventDefault()}>Fiches à valider</a><a href="#" onClick={(e) => e.preventDefault()}>Abonnements et factures</a><a href="#" onClick={(e) => e.preventDefault()}>SMS et e-mails</a><a href="#" onClick={(e) => e.preventDefault()}>Support</a>
       </nav>
       <main className="main">
         <div className="page-head"><div><h1>Vue d'ensemble</h1><p>Toutes les organisations · données d'exemple</p></div></div>

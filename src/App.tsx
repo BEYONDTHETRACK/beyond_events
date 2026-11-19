@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
-import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { HashRouter, MemoryRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { StoreProvider, useStore } from './store'
 import { DEMO_PARTICIPANT_CODE, DEMO_VOLUNTEER_CODE } from './data/demo'
 import * as A from './pages/app'
 import * as C from './pages/console'
+
+// Routage par hash en ligne ; en mémoire quand l'app est intégrée dans une page hôte (VITE_ROUTER=memory).
+const Router = import.meta.env.VITE_ROUTER === 'memory' ? MemoryRouter : HashRouter
 
 function DemoBar() {
   const { join, setSession } = useStore()
@@ -51,7 +54,7 @@ function Toast() {
 export default function App() {
   return (
     <StoreProvider>
-      <HashRouter>
+      <Router>
         <DemoBar />
         <Routes>
           <Route path="/" element={<Navigate to="/app" />} />
@@ -81,7 +84,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/app" />} />
         </Routes>
         <Toast />
-      </HashRouter>
+      </Router>
     </StoreProvider>
   )
 }

@@ -19,7 +19,7 @@ export function ConsoleLayout({ children }: { children: ReactNode }) {
   return (
     <div className="console">
       <nav className="side" aria-label="Navigation de la console">
-        <div className="brand">[Nom du produit]</div>
+        <div className="brand">Beyond Events</div>
         <div className="event"><small>Course</small><strong>Beyond Borders 2027</strong></div>
         {links.map(([to, label, n]) => (
           <NavLink key={to} to={to} end={to === '/console'} className={({ isActive }) => (isActive ? 'active' : '')}>
@@ -452,7 +452,7 @@ export function Admin() {
   return (
     <div className="console">
       <nav className="side admin" aria-label="Administration">
-        <div className="brand">[Nom du produit]<div className="small" style={{ color: '#D4CCE6', fontFamily: 'Inter', fontWeight: 400 }}>Administration plateforme</div></div>
+        <div className="brand">Beyond Events<div className="small" style={{ color: '#D4CCE6', fontFamily: 'Inter', fontWeight: 400 }}>Administration plateforme</div></div>
         <a className="active" href="#" onClick={(e) => e.preventDefault()}>Vue d'ensemble</a><a href="#" onClick={(e) => e.preventDefault()}>Organisations</a><a href="#" onClick={(e) => e.preventDefault()}>Fiches à valider</a><a href="#" onClick={(e) => e.preventDefault()}>Abonnements et factures</a><a href="#" onClick={(e) => e.preventDefault()}>SMS et e-mails</a><a href="#" onClick={(e) => e.preventDefault()}>Support</a>
       </nav>
       <main className="main">

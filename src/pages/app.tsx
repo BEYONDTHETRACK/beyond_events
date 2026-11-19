@@ -31,8 +31,8 @@ export function Bienvenue() {
   return (
     <div className="screen" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
-        <div className="display" style={{ width: 64, height: 64, borderRadius: 18, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22 }}>[N]</div>
-        <h1 style={{ fontSize: 34, lineHeight: 1.1 }}>[Nom du produit]</h1>
+        <div className="display" style={{ width: 64, height: 64, borderRadius: 18, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22 }}>BE</div>
+        <h1 style={{ fontSize: 34, lineHeight: 1.1 }}>Beyond Events</h1>
         <p style={{ fontSize: 16, lineHeight: 1.5, color: '#C9D3CE' }}>Toutes les infos de ta course, au bon moment, dans ta langue.</p>
       </div>
       <Link className="btn big block" to="/app/evenements">Découvrir les événements</Link>

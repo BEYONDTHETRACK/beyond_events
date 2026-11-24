@@ -6,6 +6,7 @@ import * as R from './pages/runner'
 import * as V from './pages/volunteer'
 import * as C from './pages/console'
 import { Admin } from './pages/admin'
+import { AccessGate } from './components/Gate'
 
 // Routage par hash (GitHub Pages) ; en mémoire si l'app est intégrée dans une page hôte (VITE_ROUTER=memory).
 const Router = import.meta.env.VITE_ROUTER === 'memory' ? MemoryRouter : HashRouter
@@ -20,6 +21,7 @@ function Organizer() {
 
 export default function App() {
   return (
+    <AccessGate>
     <Router>
       <AuthProvider>
         <ToastProvider>
@@ -63,5 +65,6 @@ export default function App() {
         </ToastProvider>
       </AuthProvider>
     </Router>
+    </AccessGate>
   )
 }

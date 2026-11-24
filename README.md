@@ -1,11 +1,34 @@
-# Beyond Events – prototype
+# Beyond Events – V1
 
-Prototype web cliquable de l'outil de communication pour les courses d'endurance :
-un événement = une « room », on y entre avec un code personnel (participant ou bénévole).
+Web app (PC et mobile, installable) pour la communication des organisateurs d'événements d'endurance
+avec leurs participants et leurs bénévoles. Un événement = une « room » : chacun y entre avec son code personnel.
 
-Tout fonctionne avec des **données d'exemple en mémoire** : rien n'est enregistré.
+En ligne : https://antoinechry.github.io/beyond_events/
 
-## Lancer
+## Ce que fait la V1
+
+- **Visiteur** : liste des événements publics (filtre par pratique), fiche publique, bouton « Rejoindre un événement ».
+- **Participant** (code personnel) : fil des messages ciblés, confirmation de lecture, infos de la course,
+  messages privés avec l'organisation, signalement d'abandon ou d'incident (avec position GPS), choix de la langue.
+- **Bénévole** (code personnel) : son poste, confirmation de présence, consignes, pointage arrivée/départ,
+  messages du PC course, groupe de son équipe, liste des postes, signalement au PC course.
+- **Organisateur** (e-mail + mot de passe) : organisation, événements, événement de démo,
+  messages ciblés (distance, format, statut, langue) avec suivi lu / confirmé par personne,
+  participants (import CSV, codes, export CSV des codes pour publipostage), bénévoles et postes,
+  boîte de réception (signalements, questions), fiche publique et réglages.
+- **Admin plateforme** : validation des fiches publiques. Le premier compte qui le demande devient admin.
+
+Mise à jour quasi en direct (rafraîchissement toutes les 5 secondes environ).
+
+Pas encore branché : envoi réel des e-mails, SMS et notifications push, traduction automatique,
+carte et traces GPX, suivi GPS, mode hors ligne complet.
+
+## Technique
+
+- Vite + React + TypeScript, routage par hash (GitHub Pages).
+- Supabase (projet `beyond_events`, organisation Labo) : tables protégées par RLS ;
+  participants et bénévoles passent par des fonctions RPC qui vérifient leur code.
+- URL et clé publique Supabase dans `src/lib/supabase.ts` (surchargeables par `VITE_SUPABASE_URL` et `VITE_SUPABASE_KEY`).
 
 ```bash
 npm install
@@ -13,29 +36,7 @@ npm run dev      # développement
 npm run build    # version à déployer (dossier dist/)
 ```
 
-Déploiement Netlify : commande `npm run build`, dossier publié `dist`.
+## Réglage Supabase à faire une fois
 
-## Tester
-
-La barre violette en haut change de vue : Visiteur, Coureur, Bénévole, Organisateur, Admin.
-
-- Code participant de démo : `BB27-X4K9`
-- Code bénévole de démo : `BB27-V7Q2`
-
-Scénario type : en vue Organisateur, envoyer un message (Nouveau message), suivre les
-lectures et la bascule SMS simulées, puis passer en vue Coureur : le message est dans le fil.
-Un abandon signalé par le coureur arrive dans la boîte de réception de la console.
-
-## Structure
-
-- `src/data/types.ts` : modèle de données (futures tables Supabase)
-- `src/data/demo.ts` : données d'exemple
-- `src/store.tsx` : état et actions ; chaque action deviendra un appel Supabase en V1
-- `src/pages/app.tsx` : app mobile (visiteur, participant, bénévole)
-- `src/pages/console.tsx` : console organisateur et admin plateforme
-- `src/components/ui.tsx` : composants communs et carte schématique
-
-## Pas encore branché (V1)
-
-Comptes et codes réels, import CSV, envoi push / e-mail / SMS, traduction automatique,
-carte réelle avec traces GPX, tracking GPS, mode hors ligne du contrôle matériel.
+Authentication › URL Configuration : Site URL et Redirect URLs = `https://antoinechry.github.io/beyond_events/`
+(pour les liens de confirmation de compte et de mot de passe oublié).

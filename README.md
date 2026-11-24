@@ -3,7 +3,7 @@
 Web app (PC et mobile, installable) pour la communication des organisateurs d'événements d'endurance
 avec leurs participants et leurs bénévoles. Un événement = une « room » : chacun y entre avec son code personnel.
 
-En ligne : https://antoinechry.github.io/beyond_events/
+En ligne : https://beyondthetrack.github.io/beyond_events/
 
 ## Ce que fait la V1
 
@@ -38,5 +38,5 @@ npm run build    # version à déployer (dossier dist/)
 
 ## Réglage Supabase à faire une fois
 
-Authentication › URL Configuration : Site URL et Redirect URLs = `https://antoinechry.github.io/beyond_events/`
+Authentication › URL Configuration : Site URL et Redirect URLs = `https://beyondthetrack.github.io/beyond_events/`
 (pour les liens de confirmation de compte et de mot de passe oublié).

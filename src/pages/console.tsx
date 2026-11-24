@@ -515,7 +515,18 @@ function ImportPeople({ kind, eventId, posts = [], onDone }: { kind: 'participan
     if (kind === 'participants') {
       payload = records.map(({ name, g }) => ({ event_id: eventId, name, bib: parseInt(g('bib'), 10) || null, email: g('email') || null, phone: g('phone') || null, distance: g('distance'), format: /duo/i.test(g('format')) ? 'Duo' : 'Solo', lang: normLang(g('lang')) }))
     } else {
-      payload = records.map(({ name, g }) => ({ event_id: eventId, name, email: g('email') || null, phone: g('phone') || null, post_id: posts.find((p) => p.name.toLowerCase() === g('post').toLowerCase())?.id ?? null }))
+      // Les postes cités dans le fichier qui n'existent pas encore sont créés automatiquement.
+      const key = (t: string) => t.trim().toLowerCase()
+      const known = new Map(posts.map((p) => [key(p.name), p.id]))
+      const missing = [...new Set(records.map(({ g }) => g('post').trim()).filter((n) => n && !known.has(key(n))))]
+      if (missing.length) {
+        const { data: created, error: perr } = await supabase.from('posts')
+          .insert(missing.map((n, i) => ({ event_id: eventId, name: n, capacity: records.filter(({ g }) => key(g('post')) === key(n)).length, position: posts.length + i + 1 })))
+          .select('id,name')
+        if (perr) { setBusy(false); notify(`Erreur : ${perr.message}`); return }
+        for (const c of created ?? []) known.set(key(c.name), c.id)
+      }
+      payload = records.map(({ name, g }) => ({ event_id: eventId, name, email: g('email') || null, phone: g('phone') || null, post_id: known.get(key(g('post'))) ?? null }))
     }
     const { error } = await supabase.from(kind === 'participants' ? 'participants' : 'volunteers').insert(payload)
     setBusy(false)

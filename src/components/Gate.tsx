@@ -4,7 +4,7 @@ import { Brand } from './Logo'
 
 // Protection d'accès pendant la phase de test : un code commun, vérifié par son empreinte SHA-256.
 // Ce n'est pas une sécurité forte (le contrôle se fait dans le navigateur) : les données restent protégées par Supabase.
-const HASH = import.meta.env.VITE_ACCESS_HASH ?? '6d08e71a535ecb5896a63a1607b10a5c21e289904b7546fa906e804f5c004a07'
+const HASH = import.meta.env.VITE_ACCESS_HASH ?? 'dd1673b76b68b2e1f21e9f86a7080094f28b1e2ef4798e85a6b5e15fd3c10203'
 const KEY = 'be.access'
 
 async function sha256(t: string) {

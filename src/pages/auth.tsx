@@ -36,7 +36,9 @@ function Login() {
     setBusy(true)
     setMsg(null)
     if (mode === 'in') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      // Un identifiant sans @ (ex. « admin ») correspond à un compte interne.
+      const login = email.includes('@') ? email.trim() : `${email.trim().toLowerCase()}@beyond-events.local`
+      const { error } = await supabase.auth.signInWithPassword({ email: login, password })
       if (error) setMsg({ ok: false, text: error.message === 'Email not confirmed' ? 'Adresse pas encore confirmée : clique sur le lien reçu par e-mail.' : 'E-mail ou mot de passe incorrect.' })
     } else if (mode === 'up') {
       const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: appUrl() } })
@@ -57,9 +59,9 @@ function Login() {
           <button type="button" className="chip green" aria-pressed={mode === 'in'} onClick={() => setMode('in')}>Se connecter</button>
           <button type="button" className="chip green" aria-pressed={mode === 'up'} onClick={() => setMode('up')}>Créer un compte</button>
         </div>
-        <div className="field"><label htmlFor="em">E-mail</label><input id="em" type="email" required autoComplete="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+        <div className="field"><label htmlFor="em">{mode === 'in' ? 'E-mail ou identifiant' : 'E-mail'}</label><input id="em" type={mode === 'in' ? 'text' : 'email'} required autoComplete="username" autoCapitalize="none" className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         {mode !== 'reset' && (
-          <div className="field"><label htmlFor="pw">Mot de passe</label><input id="pw" type="password" required minLength={6} autoComplete={mode === 'up' ? 'new-password' : 'current-password'} className="input" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+          <div className="field"><label htmlFor="pw">Mot de passe</label><input id="pw" type="password" required minLength={mode === 'up' ? 6 : 1} autoComplete={mode === 'up' ? 'new-password' : 'current-password'} className="input" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
         )}
         {msg && <p className={`small ${msg.ok ? 'ok' : 'ko'}`} role="status">{msg.text}</p>}
         <button type="submit" className="btn big primary" disabled={busy}>{busy ? '…' : mode === 'in' ? 'Se connecter' : mode === 'up' ? 'Créer mon compte' : 'Envoyer le lien'}</button>

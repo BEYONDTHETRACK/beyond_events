@@ -7,6 +7,7 @@ import { PRACTICES } from '../lib/types'
 import type { EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
 import { useAuth } from './auth'
+import { Brand } from '../components/Logo'
 
 // ====================== Accueil console : organisation et événements ======================
 
@@ -49,7 +50,7 @@ export function ConsoleHome() {
   return (
     <div className="console-home">
       <header className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div><Link to="/" style={{ fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>← Beyond Events</Link><h1 style={{ fontSize: 30, marginTop: 6 }}>Console organisateur</h1></div>
+        <div><Link to="/" aria-label="Beyond Events, accueil" style={{ textDecoration: 'none' }}><Brand on="light" size={22} /></Link><h1 style={{ fontSize: 30, marginTop: 6 }}>Console organisateur</h1></div>
         <div className="row">
           {data?.admin && <Link className="btn" to="/admin">Admin plateforme</Link>}
           <span className="small muted">{session?.user.email}</span>
@@ -150,7 +151,7 @@ export function EventShell() {
     <EventCtx.Provider value={{ ev: data.ev, reloadEvent: reload }}>
       <div className="console">
         <nav className="side" aria-label="Navigation de la console">
-          <Link to="/console" className="brand" style={{ color: '#fff', textDecoration: 'none' }}>Beyond Events</Link>
+          <Link to="/console" className="brand" aria-label="Beyond Events, mes événements" style={{ textDecoration: 'none' }}><Brand size={18} /></Link>
           <div className="event"><small>Événement</small><strong>{data.ev.name}</strong></div>
           {links.map(([to, label, n]) => (
             <NavLink key={to} to={to} end={to === base} className={({ isActive }) => (isActive ? 'active' : '')}>
@@ -395,7 +396,7 @@ export function MessageDetail() {
         <div className="kpi"><div className="k-label">Destinataires</div><div className="k-value">{total}</div></div>
         <div className="kpi"><div className="k-label">Lu</div><div className="k-value">{read} <small>{pct(read, total)} %</small></div><Progress value={total ? read / total : 0} /></div>
         {m.require_confirm && <div className="kpi"><div className="k-label">Confirmé</div><div className="k-value">{conf} <small>{pct(conf, total)} %</small></div><Progress value={total ? conf / total : 0} /></div>}
-        <div className="kpi" style={{ background: 'var(--alert-soft)', borderColor: '#F0C9B3' }}><div className="k-label ko" style={{ fontWeight: 600 }}>{m.require_confirm ? 'Pas encore confirmé' : 'Pas encore lu'}</div><div className="k-value ko">{todo.length}</div></div>
+        <div className="kpi" style={{ background: 'var(--orange-soft)', borderColor: '#FFC9AE' }}><div className="k-label ko" style={{ fontWeight: 600 }}>{m.require_confirm ? 'Pas encore confirmé' : 'Pas encore lu'}</div><div className="k-value ko">{todo.length}</div></div>
       </div>
       <section className="panel">
         {m.body && <p className="card-text" style={{ background: 'var(--bg)', padding: 12, borderRadius: 10 }}>{m.body}</p>}
@@ -479,7 +480,7 @@ export function Participants() {
                   <td>{p.name}<div className="small muted">{p.email}</div></td>
                   <td className="muted">{p.distance} · {p.format}</td>
                   <td className="muted">{p.lang}</td>
-                  <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{p.code}</td>
+                  <td className="code">{p.code}</td>
                   <td className={p.activated_at ? 'ok' : 'ko'}>{p.activated_at ? ago(p.activated_at) : 'Non'}</td>
                   <td><select className="select" aria-label={`Statut de ${p.name}`} value={p.status} onChange={(e) => setStatus(p, e.target.value)} style={{ minHeight: 36 }}>{['inscrit', 'en course', 'abandon', 'finisher'].map((s) => <option key={s}>{s}</option>)}</select></td>
                   <td><button type="button" className="btn" style={{ minHeight: 36 }} onClick={() => remove(p)}>Supprimer</button></td>
@@ -657,7 +658,7 @@ export function Benevoles() {
                   <tr key={v.id}>
                     <td>{v.name}<div className="small muted">{v.phone ?? v.email}</div></td>
                     <td><select className="select" aria-label={`Poste de ${v.name}`} value={v.post_id ?? ''} onChange={(e) => assign(v, e.target.value)} style={{ minHeight: 36 }}><option value="">Non affecté</option>{posts.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></td>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v.code}</td>
+                    <td className="code">{v.code}</td>
                     <td className={v.activated_at ? 'ok' : 'ko'}>{v.activated_at ? 'Oui' : 'Non'}</td>
                     <td className={v.confirmed_at ? 'ok' : 'ko'}>{v.confirmed_at ? 'Confirmée' : 'En attente'}</td>
                     <td className={here(v) ? 'ok' : 'muted'}>{here(v) ? `Depuis ${ago(v.checked_in_at)}` : '—'}</td>
@@ -706,7 +707,7 @@ function PostForm({ eventId, post, onDone }: { eventId: string; post: Post | nul
       <div className="field"><label htmlFor="pr">Responsable</label><input id="pr" className="input" value={f.lead_name} onChange={(e) => setF({ ...f, lead_name: e.target.value })} /></div>
       <div className="field"><label htmlFor="pt">Téléphone du responsable</label><input id="pt" className="input" value={f.lead_phone} onChange={(e) => setF({ ...f, lead_phone: e.target.value })} /></div>
       <div className="field" style={{ gridColumn: '1 / -1' }}><label htmlFor="pi">Consignes (les bénévoles doivent confirmer les avoir lues)</label><textarea id="pi" className="textarea" rows={3} value={f.instructions} onChange={(e) => setF({ ...f, instructions: e.target.value })} /></div>
-      <div className="row" style={{ gridColumn: '1 / -1' }}><button type="submit" className="btn primary">Enregistrer</button><button type="button" className="btn" onClick={onDone}>Annuler</button>{post && <button type="button" className="btn" style={{ color: 'var(--alert)', marginLeft: 'auto' }} onClick={del}>Supprimer</button>}</div>
+      <div className="row" style={{ gridColumn: '1 / -1' }}><button type="submit" className="btn primary">Enregistrer</button><button type="button" className="btn" onClick={onDone}>Annuler</button>{post && <button type="button" className="btn" style={{ color: 'var(--danger)', marginLeft: 'auto' }} onClick={del}>Supprimer</button>}</div>
     </form>
   )
 }
@@ -782,7 +783,7 @@ export function Inbox() {
           <h2>Signalements</h2>
           {(data?.reports ?? []).map((r) => (
             <div key={r.id} className={`card ${r.handled_at ? '' : 'warn'}`}>
-              <div className="card-meta"><span className={`tag ${r.type === 'Abandon' ? 'alerte' : 'relance'}`}>{r.type}</span><span>{r.participant_id ? 'Participant' : 'Bénévole'} · {ago(r.created_at)}</span></div>
+              <div className="card-meta"><span className={`tag ${r.type === 'Abandon' ? 'danger' : 'alerte'}`}>{r.type}</span><span>{r.participant_id ? 'Participant' : 'Bénévole'} · {ago(r.created_at)}</span></div>
               <div className="card-title">{r.source_label}</div>
               {r.body && r.body !== r.type && <div className="small">{r.body}</div>}
               {r.lat !== null && r.lng !== null && <a className="small" href={`https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lng}#map=14/${r.lat}/${r.lng}`} target="_blank" rel="noreferrer">Voir la position sur une carte</a>}
@@ -873,7 +874,7 @@ export function Fiche() {
         <div className="field"><label htmlFor="sd">Délai par défaut avant SMS (minutes)</label><input id="sd" type="number" min={5} className="input" value={f.sms_default_delay_min} onChange={(e) => setF({ ...f, sms_default_delay_min: Number(e.target.value) })} /></div>
         <p className="small muted" style={{ gridColumn: '1 / -1' }}>Réglages enregistrés : les relances automatiques par e-mail et les SMS seront activés dans une prochaine version.</p>
       </section>
-      <section className="panel"><h2 style={{ fontSize: 16 }}>Zone sensible</h2><button type="button" className="btn" style={{ color: 'var(--alert)', alignSelf: 'flex-start' }} onClick={remove}>Supprimer l'événement</button></section>
+      <section className="panel"><h2 style={{ fontSize: 16 }}>Zone sensible</h2><button type="button" className="btn" style={{ color: 'var(--danger)', alignSelf: 'flex-start' }} onClick={remove}>Supprimer l'événement</button></section>
     </form>
   )
 }

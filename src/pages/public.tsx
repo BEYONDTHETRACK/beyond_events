@@ -6,15 +6,16 @@ import { dateFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
 import type { CodeSession, EventRow } from '../lib/types'
 import { BackBar, ErrorNote, Icon, Loading } from '../components/ui'
+import { Symbol, Wordmark } from '../components/Logo'
 
 export function Bienvenue() {
   const s = getCodeSession()
   return (
     <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
-        <div className="display" style={{ width: 64, height: 64, borderRadius: 18, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22 }}>BE</div>
-        <h1 style={{ fontSize: 34, lineHeight: 1.1 }}>Beyond Events</h1>
-        <p style={{ fontSize: 16, lineHeight: 1.5, color: '#C9D3CE' }}>Toutes les infos de ta course, au bon moment, dans ta langue.</p>
+        <Symbol size={60} />
+        <h1 aria-label="Beyond Events" style={{ fontSize: 44, lineHeight: 1, fontWeight: 700 }}><Wordmark size={44} /></h1>
+        <p style={{ fontSize: 16, lineHeight: 1.5, color: '#B8C4D2' }}>Toutes les infos de ta course, au bon moment, dans ta langue.</p>
       </div>
       {s && (
         <Link className="btn big block primary" to={s.role === 'benevole' ? '/benevole' : '/course'}>
@@ -23,7 +24,7 @@ export function Bienvenue() {
       )}
       <Link className={`btn big block ${s ? '' : 'primary'}`} to="/rejoindre">J'ai un code personnel</Link>
       <Link className="btn big block" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/evenements">Découvrir les événements</Link>
-      <Link to="/console" style={{ color: '#C9D3CE', textAlign: 'center', fontSize: 14, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Vous organisez une course ? Accéder à la console</Link>
+      <Link to="/console" style={{ color: '#B8C4D2', textAlign: 'center', fontSize: 14, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Vous organisez une course ? Accéder à la console</Link>
     </div>
   )
 }
@@ -132,7 +133,7 @@ export function Rejoindre() {
         <p className="card-text" style={{ fontSize: 15 }}>Saisis le code personnel envoyé par l'organisateur. Il t'ouvre l'espace de la course, comme participant ou comme bénévole.</p>
         <div className="field">
           <label htmlFor="code">Ton code personnel</label>
-          <input id="code" className="input display" autoComplete="one-time-code" autoCapitalize="characters" value={code}
+          <input id="code" className="input code" autoComplete="one-time-code" autoCapitalize="characters" value={code}
             onChange={(e) => { setCode(e.target.value); setError('') }} placeholder="XXXX-XXXX"
             style={{ minHeight: 64, fontSize: 26, fontWeight: 700, letterSpacing: '.15em', textAlign: 'center', textTransform: 'uppercase', border: '2px solid var(--forest)' }} />
           {error && <p className="small ko" role="alert">{error}</p>}

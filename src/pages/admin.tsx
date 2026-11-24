@@ -4,6 +4,7 @@ import { dateFr, usePoll } from '../lib/util'
 import type { EventRow } from '../lib/types'
 import { ErrorNote, Loading, useToast } from '../components/ui'
 import { useAuth } from './auth'
+import { Brand } from '../components/Logo'
 
 export function Admin() {
   const { session } = useAuth()
@@ -37,7 +38,7 @@ export function Admin() {
   return (
     <div className="console">
       <nav className="side admin" aria-label="Navigation admin">
-        <span className="brand">Beyond Events</span>
+        <span className="brand"><Brand size={18} /></span>
         <Link to="/admin" className="active">Administration</Link>
         <Link to="/console" style={{ marginTop: 'auto' }}>← Console organisateur</Link>
       </nav>

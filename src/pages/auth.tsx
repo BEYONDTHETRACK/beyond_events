@@ -3,6 +3,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Session } from '@supabase/supabase-js'
 import { appUrl, supabase } from '../lib/supabase'
+import { Brand } from '../components/Logo'
 
 const AuthCtx = createContext<{ session: Session | null; ready: boolean }>({ session: null, ready: false })
 export const useAuth = () => useContext(AuthCtx)
@@ -53,7 +54,7 @@ function Login() {
   return (
     <div className="login-wrap">
       <form className="panel login" onSubmit={submit}>
-        <Link to="/" style={{ fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>← Beyond Events</Link>
+        <Link to="/" aria-label="Beyond Events, accueil" style={{ textDecoration: 'none' }}><Brand on="light" size={24} /></Link>
         <h1 style={{ fontSize: 28 }}>Console organisateur</h1>
         <div className="chips">
           <button type="button" className="chip green" aria-pressed={mode === 'in'} onClick={() => setMode('in')}>Se connecter</button>

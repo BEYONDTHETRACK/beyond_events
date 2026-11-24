@@ -43,7 +43,7 @@ function Header() {
   const { s } = useRunner()
   const p = s.participant
   return (
-    <div className="app-header" style={{ background: s.event.color === '#0E5E4E' ? 'var(--ink)' : s.event.color }}>
+    <div className="app-header" style={{ background: ['#0E5E4E', '#0F1B2D'].includes(s.event.color) ? 'var(--nuit)' : s.event.color }}>
       <div className="row"><span className="title grow">{s.event.name}</span><span className="pill dark">{p.lang}</span></div>
       <span className="sub">{p.bib ? `Dossard ${p.bib} · ` : ''}{p.distance || 'Distance à venir'} · {p.status}</span>
     </div>
@@ -195,8 +195,8 @@ export function Incident() {
         <fieldset style={{ border: 0, margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <legend style={{ fontWeight: 700, marginBottom: 8 }}>Que se passe-t-il ?</legend>
           {INCIDENTS.map((i) => (
-            <label key={i} className="check" style={{ background: type === i ? 'var(--alert-soft)' : '#fff', border: type === i ? '2px solid var(--alert)' : '1px solid var(--line-2)', borderRadius: 12, padding: '0 14px', fontWeight: type === i ? 700 : 400, minHeight: 52 }}>
-              <input type="radio" name="t" checked={type === i} onChange={() => setType(i)} style={{ accentColor: 'var(--alert)' }} /> {i === 'Abandon' ? 'J’abandonne la course' : i}
+            <label key={i} className="check" style={{ background: type === i ? 'var(--danger-soft)' : '#fff', border: type === i ? '2px solid var(--danger)' : '1px solid var(--line-2)', borderRadius: 12, padding: '0 14px', fontWeight: type === i ? 700 : 400, minHeight: 52 }}>
+              <input type="radio" name="t" checked={type === i} onChange={() => setType(i)} style={{ accentColor: 'var(--danger)' }} /> {i === 'Abandon' ? 'J’abandonne la course' : i}
             </label>
           ))}
         </fieldset>
@@ -208,7 +208,7 @@ export function Incident() {
         <div className="field"><label htmlFor="d">Précisions (facultatif)</label><textarea id="d" className="textarea" rows={3} value={txt} onChange={(e) => setTxt(e.target.value)} placeholder="Ex. : je rejoins la gare, pas besoin de rapatriement" /></div>
       </div>
       <div className="sheet" style={{ borderRadius: 0 }}>
-        <button type="submit" disabled={busy} className="btn big block alert">{busy ? 'Envoi…' : 'Envoyer au PC course'}</button>
+        <button type="submit" disabled={busy} className="btn big block danger">{busy ? 'Envoi…' : 'Envoyer au PC course'}</button>
         <p className="small" style={{ textAlign: 'center' }}><strong>Urgence vitale : appelle le 112.</strong></p>
       </div>
     </form>
@@ -229,7 +229,7 @@ export function Compte() {
         <div className="card">
           <div className="label-up">Mon accès</div>
           <div className="card-title">{s.participant.name}</div>
-          <div className="small muted">Code personnel : <strong style={{ fontFamily: 'monospace', color: 'var(--ink)' }}>{s.participant.code}</strong></div>
+          <div className="small muted">Code personnel : <strong className="code" style={{ color: 'var(--ink)' }}>{s.participant.code}</strong></div>
           <p className="small muted">Garde ce code : il te permet de te reconnecter sur un autre appareil.</p>
         </div>
         <div className="card">

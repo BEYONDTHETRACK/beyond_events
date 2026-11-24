@@ -212,7 +212,7 @@ export function CompteBenevole() {
         <div className="card">
           <div className="label-up">Mon accès</div>
           <div className="card-title">{s.volunteer.name}</div>
-          <div className="small muted">Code personnel : <strong style={{ fontFamily: 'monospace', color: 'var(--ink)' }}>{s.volunteer.code}</strong></div>
+          <div className="small muted">Code personnel : <strong className="code" style={{ color: 'var(--ink)' }}>{s.volunteer.code}</strong></div>
           <p className="small muted">Garde ce code pour te reconnecter sur un autre appareil.</p>
         </div>
         <button type="button" className="btn big block" onClick={() => { setCodeSession(null); nav('/') }}>Se déconnecter de cet événement</button>

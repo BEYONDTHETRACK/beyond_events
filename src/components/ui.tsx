@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { Brand } from './Logo'
 
 export const Icon = {
   back: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>,
@@ -34,7 +35,7 @@ export function Phone({ children }: { children: ReactNode }) {
   return (
     <div className="phone-stage">
       <header className="web-top">
-        <Link to="/" className="web-brand"><span>BE</span> Beyond Events</Link>
+        <Link to="/" className="web-brand" aria-label="Beyond Events, accueil"><Brand size={22} /></Link>
         <nav aria-label="Navigation principale">
           <NavLink to="/evenements">Événements</NavLink>
           <NavLink to="/rejoindre">Rejoindre avec un code</NavLink>

@@ -13,7 +13,7 @@ export function Bienvenue() {
   return (
     <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
-        <Symbol size={60} />
+        <Symbol size={76} />
         <h1 aria-label="Beyond Events" style={{ fontSize: 44, lineHeight: 1, fontWeight: 700 }}><Wordmark size={44} /></h1>
         <p style={{ fontSize: 16, lineHeight: 1.5, color: '#B8C4D2' }}>Toutes les infos de ta course, au bon moment, dans ta langue.</p>
       </div>

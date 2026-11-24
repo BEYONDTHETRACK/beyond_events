@@ -10,7 +10,7 @@ import { BackBar, ErrorNote, Icon, Loading } from '../components/ui'
 export function Bienvenue() {
   const s = getCodeSession()
   return (
-    <div className="screen" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
+    <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
         <div className="display" style={{ width: 64, height: 64, borderRadius: 18, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22 }}>BE</div>
         <h1 style={{ fontSize: 34, lineHeight: 1.1 }}>Beyond Events</h1>
@@ -52,7 +52,7 @@ export function Evenements() {
             {['Tout', ...PRACTICES].map((p) => <button key={p} type="button" className="chip" aria-pressed={filter === p} onClick={() => setFilter(p)} style={{ flex: '0 0 auto' }}>{p}</button>)}
           </div>
         </div>
-        <div className="screen-body" style={{ paddingBottom: 110 }}>
+        <div className="screen-body events-grid" style={{ paddingBottom: 110 }}>
           {loading && !data && <Loading />}
           <ErrorNote error={error} />
           {data && list.length === 0 && <p className="muted small">Aucun événement public pour l'instant.</p>}

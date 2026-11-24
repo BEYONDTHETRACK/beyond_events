@@ -33,6 +33,14 @@ export const useToast = () => useContext(ToastCtx)
 export function Phone({ children }: { children: ReactNode }) {
   return (
     <div className="phone-stage">
+      <header className="web-top">
+        <Link to="/" className="web-brand"><span>BE</span> Beyond Events</Link>
+        <nav aria-label="Navigation principale">
+          <NavLink to="/evenements">Événements</NavLink>
+          <NavLink to="/rejoindre">Rejoindre avec un code</NavLink>
+          <Link to="/console">Espace organisateur</Link>
+        </nav>
+      </header>
       <div className="phone">{children}</div>
     </div>
   )

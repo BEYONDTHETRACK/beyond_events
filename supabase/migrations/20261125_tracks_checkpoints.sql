@@ -1,0 +1,3 @@
+-- Tracés GPX par événement et points de contrôle placés sur la carte (appliquée sur Supabase le 25/11/2026).
+-- Voir la migration « tracks_checkpoints » du projet : tables event_tracks et checkpoints (RLS : organisation et admin),
+-- fonctions code_tracks(code) pour participants et bénévoles, participant_track_gpx(code, track) pour le téléchargement.

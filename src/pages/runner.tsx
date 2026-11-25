@@ -1,3 +1,4 @@
+import { TrackView } from '../components/TrackView'
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
@@ -95,7 +96,7 @@ export function Fil() {
 }
 
 export function Infos() {
-  const { s } = useRunner()
+  const { s, code } = useRunner()
   const e = s.event
   return (
     <div className="screen">
@@ -114,7 +115,7 @@ export function Infos() {
           <div className="row"><span className="grow muted">Format</span><strong>{s.participant.format}</strong></div>
           <div className="row"><span className="grow muted">Dossard</span><strong>{s.participant.bib ?? '—'}</strong></div>
         </div>
-        <div className="card soft small">Documents et traces GPX : bientôt disponibles ici, consultables hors ligne.</div>
+        <TrackView code={code} canDownload highlight={s.participant.distance} />
       </div>
       <TabBar items={tabs} />
     </div>

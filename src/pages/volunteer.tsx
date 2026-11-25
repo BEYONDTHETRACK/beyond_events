@@ -1,3 +1,4 @@
+import { TrackView } from '../components/TrackView'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, Outlet, useNavigate } from 'react-router-dom'
@@ -177,12 +178,13 @@ export function Equipe() {
 }
 
 export function Postes() {
-  const { s } = useVol()
+  const { s, code } = useVol()
   return (
     <div className="screen">
       <Header />
       <div className="screen-body">
-        <p className="small muted">Tous les postes de l'événement et le nombre de bénévoles pointés. La carte avec le tracé arrive dans une prochaine version.</p>
+        <TrackView code={code} canDownload={false} />
+        <p className="small muted">Tous les postes de l'événement et le nombre de bénévoles pointés.</p>
         {s.posts.map((p) => {
           const mine = p.id === s.volunteer.post_id
           const short = p.here < p.capacity

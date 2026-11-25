@@ -129,7 +129,7 @@ export function NewEvent({ orgId, onCreated }: { orgId: string; onCreated: (id: 
 
 interface EvCtx { ev: EventRow; reloadEvent: () => Promise<void> }
 const EventCtx = createContext<EvCtx | null>(null)
-const useEv = () => useContext(EventCtx)!
+export const useEv = () => useContext(EventCtx)!
 
 export function EventShell() {
   const { id } = useParams()
@@ -147,7 +147,7 @@ export function EventShell() {
   const base = `/console/e/${id}`
   const links: [string, string, number?][] = [
     [base, 'Tableau de bord'], [`${base}/messages`, 'Messages'], [`${base}/participants`, 'Participants'],
-    [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
+    [`${base}/parcours`, 'Parcours et CP'], [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
   ]
   return (
     <EventCtx.Provider value={{ ev: data.ev, reloadEvent: reload }}>

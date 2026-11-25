@@ -256,3 +256,12 @@ table.t tr.clickable:hover td { background: #F4F6F8; }
 .place-list li[role='option'] span { font-size: 12px; color: var(--muted); }
 .place-list li[aria-selected='true'] { background: var(--cyan-soft); }
 .place-list .place-credit { font-size: 11px; color: var(--muted); padding: 6px 10px 2px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+/* Carte du parcours */
+.track-map { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); z-index: 0; }
+.track-map .leaflet-container { font-family: Inter, sans-serif; }
+.cp-icon { background: none; border: 0; }
+.cp-icon .cp-dot { position: absolute; left: 0; top: 0; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(15,27,45,.5); box-sizing: border-box; }
+.cp-icon .cp-label { position: absolute; left: 20px; top: -3px; white-space: nowrap; background: rgba(15,27,45,.88); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 6px; pointer-events: none; }
+.track-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
+.track-legend span::before { content: ''; display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: var(--c); }

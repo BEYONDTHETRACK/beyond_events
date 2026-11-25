@@ -22,18 +22,20 @@ function cpIcon(cp: MapCp, highlight: boolean) {
 }
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
-export function TrackMap({ tracks, checkpoints, height = 420, onMapClick, onCpMove, onCpClick, selectedCp, editable = false }: {
+export function TrackMap({ tracks, checkpoints, height = 420, onMapClick, onCpMove, onCpClick, selectedCp, editable = false, hoverPoint }: {
   tracks: MapTrack[]; checkpoints: MapCp[]; height?: number | string
   onMapClick?: (lat: number, lng: number) => void
   onCpMove?: (id: string, lat: number, lng: number) => void
   onCpClick?: (id: string) => void
   selectedCp?: string | null
   editable?: boolean
+  hoverPoint?: [number, number] | null
 }) {
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const layer = useRef<L.LayerGroup | null>(null)
   const fitted = useRef('')
+  const hoverMk = useRef<L.CircleMarker | null>(null)
   const handlers = useRef({ onMapClick, onCpMove, onCpClick })
   handlers.current = { onMapClick, onCpMove, onCpClick }
 
@@ -72,6 +74,14 @@ export function TrackMap({ tracks, checkpoints, height = 420, onMapClick, onCpMo
     const key = tracks.map((t) => t.id).join(',')
     if (bounds.isValid() && fitted.current !== key) { m.fitBounds(bounds, { padding: [24, 24] }); fitted.current = key }
   }, [tracks, checkpoints, selectedCp, editable])
+
+  useEffect(() => {
+    const m = map.current
+    if (!m) return
+    if (!hoverPoint) { hoverMk.current?.remove(); hoverMk.current = null; return }
+    if (!hoverMk.current) hoverMk.current = L.circleMarker(hoverPoint, { radius: 7, color: '#fff', weight: 3, fillColor: '#0F1B2D', fillOpacity: 1, interactive: false }).addTo(m)
+    else hoverMk.current.setLatLng(hoverPoint)
+  }, [hoverPoint])
 
   useEffect(() => { el.current?.style.setProperty('cursor', onMapClick ? 'crosshair' : '') }, [onMapClick])
 

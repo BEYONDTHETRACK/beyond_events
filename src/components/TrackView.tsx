@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { usePoll } from '../lib/util'
 import { downloadText } from '../lib/gpx'
@@ -5,6 +6,7 @@ import type { Pt } from '../lib/gpx'
 import { TRACK_COLORS, TrackMap } from './TrackMap'
 import type { MapCp } from './TrackMap'
 import { useToast } from './ui'
+import { Profiles } from './Profiles'
 
 interface Tr { id: string; name: string; points: Pt[]; length_km: number; gain_m: number }
 interface Data { tracks: Tr[]; checkpoints: (MapCp & { track_id: string | null })[] }
@@ -12,6 +14,7 @@ interface Data { tracks: Tr[]; checkpoints: (MapCp & { track_id: string | null }
 // Parcours vu côté participant (avec téléchargement) ou bénévole (consultation).
 export function TrackView({ code, canDownload, highlight }: { code: string; canDownload: boolean; highlight?: string }) {
   const notify = useToast()
+  const [hoverPt, setHoverPt] = useState<[number, number] | null>(null)
   const { data } = usePoll(async () => {
     const { data, error } = await supabase.rpc('code_tracks', { p_code: code })
     if (error) throw error
@@ -26,7 +29,8 @@ export function TrackView({ code, canDownload, highlight }: { code: string; canD
   return (
     <div className="card" style={{ gap: 12 }}>
       <div className="label-up">Parcours</div>
-      <TrackMap tracks={data.tracks} checkpoints={data.checkpoints} height={340} />
+      <TrackMap tracks={data.tracks} checkpoints={data.checkpoints} height={340} hoverPoint={hoverPt} />
+      <Profiles tracks={data.tracks} checkpoints={data.checkpoints} onHover={setHoverPt} initial={highlight} />
       {data.tracks.map((t, i) => (
         <div key={t.id} className="row" style={{ flexWrap: 'wrap', borderTop: '1px solid var(--line)', paddingTop: 10 }}>
           <span style={{ width: 14, height: 4, borderRadius: 2, background: TRACK_COLORS[i % TRACK_COLORS.length] }} />

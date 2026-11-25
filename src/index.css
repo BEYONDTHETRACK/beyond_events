@@ -265,3 +265,13 @@ table.t tr.clickable:hover td { background: #F4F6F8; }
 .cp-icon .cp-label { position: absolute; left: 20px; top: -3px; white-space: nowrap; background: rgba(15,27,45,.88); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 6px; pointer-events: none; }
 .track-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
 .track-legend span::before { content: ''; display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: var(--c); }
+
+/* Profil altimétrique */
+.elev { display: flex; flex-direction: column; gap: 6px; }
+.elev svg { display: block; cursor: crosshair; max-width: 100%; }
+.elev-axis { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.elev-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-2); }
+.elev-hover { margin-left: auto; font-family: var(--font-mono); background: var(--nuit); color: #fff; padding: 1px 8px; border-radius: 6px; }
+.elev-cps { position: relative; height: 18px; }
+.elev-cps span { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: var(--orange-ink); white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+.elev-tabs { display: flex; gap: 6px; flex-wrap: wrap; }

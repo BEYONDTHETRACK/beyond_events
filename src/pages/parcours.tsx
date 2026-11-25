@@ -6,6 +6,7 @@ import { downloadText, parseGpx, snap } from '../lib/gpx'
 import type { Pt } from '../lib/gpx'
 import { CP_KINDS, TRACK_COLORS, TrackMap } from '../components/TrackMap'
 import type { MapCp } from '../components/TrackMap'
+import { Profiles } from '../components/Profiles'
 import { ErrorNote, Loading, useToast } from '../components/ui'
 import { useEv } from './console'
 
@@ -31,6 +32,7 @@ export function Parcours() {
   const [adding, setAdding] = useState(false)
   const [draft, setDraft] = useState<Cp | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
+  const [hoverPt, setHoverPt] = useState<[number, number] | null>(null)
   const { data, error, loading, reload } = usePoll(async () => {
     const [t, c] = await Promise.all([
       supabase.from('event_tracks').select('id,name,file_name,points,length_km,gain_m,position').eq('event_id', ev.id).order('position').order('name'),
@@ -148,7 +150,8 @@ export function Parcours() {
         </div>
         {adding && <p className="small" style={{ background: 'var(--cyan-soft)', padding: '8px 12px', borderRadius: 8 }}>Clique sur la carte à l'endroit du CP : il se cale sur le tracé le plus proche et son kilométrage est calculé. Tu peux ensuite déplacer un CP en le faisant glisser.</p>}
         {tracks.length > 0 && <div className="track-legend">{tracks.map((t, i) => <span key={t.id} style={{ ['--c' as string]: TRACK_COLORS[i % TRACK_COLORS.length] }}>{t.name}</span>)}</div>}
-        <TrackMap tracks={tracks} checkpoints={cps} height={520} editable onMapClick={adding ? onMapClick : undefined} onCpMove={move} onCpClick={setSelected} selectedCp={selected} />
+        <TrackMap tracks={tracks} checkpoints={cps} height={520} editable onMapClick={adding ? onMapClick : undefined} onCpMove={move} onCpClick={setSelected} selectedCp={selected} hoverPoint={hoverPt} />
+        {tracks.length > 0 && <Profiles tracks={tracks} checkpoints={data?.cps ?? []} onHover={setHoverPt} />}
         {draft && (
           <div className="card soft">
             <div className="row" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>

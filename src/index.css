@@ -249,3 +249,10 @@ table.t tr.clickable:hover td { background: #F4F6F8; }
 
 .login-wrap .panel.login h1 { font-size: 28px; }
 .code { font-family: var(--font-mono); font-weight: 500; letter-spacing: .04em; }
+
+/* Suggestions de lieux */
+.place-list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; background: #fff; border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 8px 24px rgba(15,27,45,.14); max-height: 320px; overflow-y: auto; }
+.place-list li[role='option'] { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.place-list li[role='option'] span { font-size: 12px; color: var(--muted); }
+.place-list li[aria-selected='true'] { background: var(--cyan-soft); }
+.place-list .place-credit { font-size: 11px; color: var(--muted); padding: 6px 10px 2px; border-top: 1px solid var(--line); margin-top: 4px; }

@@ -7,6 +7,7 @@ import { PRACTICES } from '../lib/types'
 import type { EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
 import { useAuth } from './auth'
+import { PlaceInput } from '../components/PlaceInput'
 import { Brand } from '../components/Logo'
 
 // ====================== Accueil console : organisation et événements ======================
@@ -117,7 +118,7 @@ export function NewEvent({ orgId, onCreated }: { orgId: string; onCreated: (id: 
       <div className="field" style={{ gridColumn: '1 / -1' }}><label htmlFor="ne">Nom de l'événement</label><input id="ne" className="input" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
       <div className="field"><label htmlFor="np">Pratique</label><select id="np" className="select" value={f.practice} onChange={(e) => setF({ ...f, practice: e.target.value })}>{PRACTICES.map((p) => <option key={p}>{p}</option>)}</select></div>
       <div className="field"><label htmlFor="nd">Date de départ</label><input id="nd" type="date" className="input" value={f.starts_on} onChange={(e) => setF({ ...f, starts_on: e.target.value })} /></div>
-      <div className="field"><label htmlFor="nl">Lieu</label><input id="nl" className="input" value={f.place} onChange={(e) => setF({ ...f, place: e.target.value })} /></div>
+      <div className="field"><label htmlFor="nl">Lieu</label><PlaceInput id="nl" value={f.place} onChange={(v) => setF({ ...f, place: v })} /></div>
       <div className="field"><label htmlFor="nk">Distances (séparées par des virgules)</label><input id="nk" className="input" placeholder="300 km, 600 km" value={f.distances} onChange={(e) => setF({ ...f, distances: e.target.value })} /></div>
       <div className="row" style={{ gridColumn: '1 / -1' }}><button type="submit" className="btn primary">Créer</button><button type="button" className="btn" onClick={() => setOpen(false)}>Annuler</button></div>
     </form>
@@ -861,7 +862,7 @@ export function Fiche() {
         <div className="field" style={{ gridColumn: '1 / -1' }}><label htmlFor="fn">Nom de l'événement</label><input id="fn" className="input" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
         <div className="field"><label htmlFor="fp">Pratique</label><select id="fp" className="select" value={f.practice} onChange={(e) => setF({ ...f, practice: e.target.value })}>{PRACTICES.map((p) => <option key={p}>{p}</option>)}</select></div>
         <div className="field"><label htmlFor="fd">Date de départ</label><input id="fd" type="date" className="input" value={f.starts_on} onChange={(e) => setF({ ...f, starts_on: e.target.value })} /></div>
-        <div className="field"><label htmlFor="fl">Lieu</label><input id="fl" className="input" value={f.place} onChange={(e) => setF({ ...f, place: e.target.value })} /></div>
+        <div className="field"><label htmlFor="fl">Lieu</label><PlaceInput id="fl" value={f.place} onChange={(v) => setF({ ...f, place: v })} /></div>
         <div className="field"><label htmlFor="fk">Distances</label><input id="fk" className="input" value={f.distances} onChange={(e) => setF({ ...f, distances: e.target.value })} /></div>
         <div className="field" style={{ gridColumn: '1 / -1' }}><label htmlFor="fe">Présentation</label><textarea id="fe" className="textarea" rows={4} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
         <div className="field"><label htmlFor="fu">Lien d'inscription</label><input id="fu" type="url" className="input" placeholder="https://" value={f.registration_url} onChange={(e) => setF({ ...f, registration_url: e.target.value })} /></div>

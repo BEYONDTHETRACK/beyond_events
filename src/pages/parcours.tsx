@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { usePoll } from '../lib/util'
 import { downloadText, parseGpx, snap } from '../lib/gpx'
 import type { Pt } from '../lib/gpx'
-import { CP_KINDS, TRACK_COLORS, TrackMap } from '../components/TrackMap'
+import { CP_KINDS, START_FINISH, TRACK_COLORS, TrackMap, cpKm } from '../components/TrackMap'
 import type { MapCp } from '../components/TrackMap'
 import { Profiles } from '../components/Profiles'
 import { ErrorNote, Loading, useToast } from '../components/ui'
@@ -14,7 +14,18 @@ interface Track { id: string; name: string; file_name: string; points: Pt[]; len
 interface Cp extends MapCp { track_id: string | null }
 
 // Place un point sur le tracé le plus proche et renvoie son kilométrage.
-function locate(tracks: Track[], lat: number, lng: number) {
+// Départ (et Départ / Arrivée) se calent sur le début du tracé le plus proche, Arrivée sur sa fin.
+function locate(tracks: Track[], lat: number, lng: number, kind = 'CP') {
+  const l = locateRaw(tracks, lat, lng)
+  if (!l) return l
+  const pts = l.track.points
+  const first = pts[0]
+  const last = pts[pts.length - 1]
+  if (kind === 'Départ' || kind === START_FINISH) return { ...l, lat: first[0], lng: first[1], km: 0 }
+  if (kind === 'Arrivée') return { ...l, lat: last[0], lng: last[1], km: last[3] }
+  return l
+}
+function locateRaw(tracks: Track[], lat: number, lng: number) {
   let best: { track: Track; lat: number; lng: number; km: number; off: number } | null = null
   for (const t of tracks) {
     if (!t.points.length) continue
@@ -92,7 +103,8 @@ export function Parcours() {
     reload()
   }
   const move = async (id: string, lat: number, lng: number) => {
-    const l = locate(tracks, lat, lng)
+    const kind = id === 'draft' ? draft?.kind : data?.cps.find((c) => c.id === id)?.kind
+    const l = locate(tracks, lat, lng, kind)
     const patch = { lat: l?.lat ?? lat, lng: l?.lng ?? lng, km: l ? l.km : null, track_id: l?.track.id ?? null }
     if (id === 'draft') { setDraft((d) => (d ? { ...d, ...patch } : d)); return }
     await supabase.from('checkpoints').update(patch).eq('id', id)
@@ -156,8 +168,8 @@ export function Parcours() {
           <div className="card soft">
             <div className="row" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="dn">Nom du point</label><input id="dn" className="input" autoFocus value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></div>
-              <div className="field" style={{ width: 190 }}><label htmlFor="dk">Type</label><select id="dk" className="select" value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })}>{CP_KINDS.map((k) => <option key={k}>{k}</option>)}</select></div>
-              <div className="small" style={{ paddingBottom: 12 }}>{draft.km != null ? <>km <strong>{Number(draft.km).toFixed(1)}</strong> · {tracks.find((t) => t.id === draft.track_id)?.name}</> : 'Hors tracé'}</div>
+              <div className="field" style={{ width: 190 }}><label htmlFor="dk">Type</label><select id="dk" className="select" value={draft.kind} onChange={(e) => { const kind = e.target.value; const l = locate(tracks, draft.lat, draft.lng, kind); setDraft({ ...draft, kind, ...(l ? { lat: l.lat, lng: l.lng, km: l.km, track_id: l.track.id } : {}) }) }}>{CP_KINDS.map((k) => <option key={k}>{k}</option>)}</select></div>
+              <div className="small" style={{ paddingBottom: 12 }}>{draft.km != null ? <>km <strong>{cpKm(draft, tracks.find((t) => t.id === draft.track_id)?.length_km)}</strong> · {tracks.find((t) => t.id === draft.track_id)?.name}</> : 'Hors tracé'}</div>
               <button type="button" className="btn primary" onClick={saveDraft}>Enregistrer le point</button>
               <button type="button" className="btn" onClick={() => { setDraft(null); setSelected(null) }}>Annuler</button>
             </div>
@@ -170,8 +182,8 @@ export function Parcours() {
               {(data?.cps ?? []).map((cp) => (
                 <tr key={cp.id} style={selected === cp.id ? { background: 'var(--cyan-soft)' } : undefined}>
                   <td><input className="input" aria-label="Nom du point" defaultValue={cp.name} style={{ minHeight: 36 }} onBlur={(e) => e.target.value !== cp.name && update(cp, { name: e.target.value })} /></td>
-                  <td><select className="select" aria-label="Type de point" value={cp.kind} style={{ minHeight: 36 }} onChange={(e) => update(cp, { kind: e.target.value })}>{CP_KINDS.map((k) => <option key={k}>{k}</option>)}</select></td>
-                  <td className="code">{cp.km != null ? Number(cp.km).toFixed(1) : '—'}</td>
+                  <td><select className="select" aria-label="Type de point" value={cp.kind} style={{ minHeight: 36 }} onChange={(e) => { const kind = e.target.value; const l = locate(tracks, cp.lat, cp.lng, kind); update(cp, { kind, ...(l ? { lat: l.lat, lng: l.lng, km: l.km, track_id: l.track.id } : {}) }) }}>{CP_KINDS.map((k) => <option key={k}>{k}</option>)}</select></td>
+                  <td className="code">{cpKm(cp, tracks.find((t) => t.id === cp.track_id)?.length_km)}</td>
                   <td className="muted">{tracks.find((t) => t.id === cp.track_id)?.name ?? '—'}</td>
                   <td><button type="button" className="btn" style={{ minHeight: 36 }} onClick={() => removeCp(cp)}>Supprimer</button></td>
                 </tr>

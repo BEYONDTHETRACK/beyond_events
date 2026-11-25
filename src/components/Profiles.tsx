@@ -4,7 +4,7 @@ import { ElevationProfile } from './ElevationProfile'
 import { TRACK_COLORS } from './TrackMap'
 
 interface T { id: string; name: string; points: Pt[]; gain_m: number }
-interface C { id: string; name: string; km: number | null; track_id?: string | null }
+interface C { id: string; name: string; km: number | null; kind?: string; track_id?: string | null }
 
 export function Profiles({ tracks, checkpoints, onHover, initial }: { tracks: T[]; checkpoints: C[]; onHover: (p: [number, number] | null) => void; initial?: string }) {
   const start = Math.max(0, tracks.findIndex((t) => t.name === initial))

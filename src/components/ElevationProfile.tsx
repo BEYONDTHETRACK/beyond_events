@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
 import type { Pt } from '../lib/gpx'
 
-interface Cp { id: string; name: string; km: number | null; track_id?: string | null }
+interface Cp { id: string; name: string; km: number | null; kind?: string; track_id?: string | null }
 
 const H = 180
 const PAD = { l: 48, r: 12, t: 14, b: 26 }
@@ -71,6 +71,7 @@ export function ElevationProfile({ points, checkpoints = [], color = '#0E7490', 
   }
   const leave = () => { setHover(null); onHover?.(null) }
   const cps = checkpoints.filter((c) => c.km != null && c.km <= geo.total + 0.5)
+    .flatMap((c) => (c.kind === 'Départ / Arrivée' ? [{ ...c, km: 0 }, { ...c, id: `${c.id}-fin`, km: geo.total }] : [c]))
   const label = `Profil altimétrique : ${geo.total.toFixed(1)} km, altitude de ${Math.round(geo.lo)} à ${Math.round(geo.hi)} m${gain != null ? `, ${gain} m de dénivelé positif` : ''}.`
 
   return (
@@ -107,7 +108,7 @@ export function ElevationProfile({ points, checkpoints = [], color = '#0E7490', 
       </svg>
       {cps.length > 0 && (
         <div className="elev-cps">
-          {cps.map((c) => <span key={c.id} style={{ left: `${(geo.x(Number(c.km)) / W) * 100}%` }} title={`${c.name} · km ${Number(c.km).toFixed(1)}`}>{c.name}</span>)}
+          {cps.map((c) => { const pc = (geo.x(Number(c.km)) / W) * 100; return <span key={c.id} style={{ left: `${pc}%`, transform: pc < 10 ? 'none' : pc > 90 ? 'translateX(-100%)' : undefined }} title={`${c.name} · km ${Number(c.km).toFixed(1)}`}>{c.name}</span> })}
         </div>
       )}
     </div>

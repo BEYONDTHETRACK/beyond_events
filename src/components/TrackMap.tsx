@@ -4,18 +4,26 @@ import 'leaflet/dist/leaflet.css'
 import type { Pt } from '../lib/gpx'
 
 export interface MapTrack { id: string; name: string; points: Pt[] }
-export interface MapCp { id: string; name: string; kind: string; lat: number; lng: number; km: number | null }
+export interface MapCp { id: string; name: string; kind: string; lat: number; lng: number; km: number | null; track_id?: string | null }
+
+export const START_FINISH = 'Départ / Arrivée'
+// Kilométrage affiché : un point Départ / Arrivée vaut 0 et la longueur totale du tracé (boucle).
+export function cpKm(cp: { kind: string; km: number | null }, totalKm?: number | null, digits = 1) {
+  if (cp.km == null) return '—'
+  if (cp.kind === START_FINISH && totalKm) return `0 / ${Number(totalKm).toFixed(digits)}`
+  return Number(cp.km).toFixed(digits)
+}
 
 export const TRACK_COLORS = ['#FF5F1F', '#0E7490', '#15803D', '#1E3350', '#B93A00']
-const KIND_COLORS: Record<string, string> = { 'Départ': '#15803D', 'Arrivée': '#0F1B2D', 'CP': '#FF5F1F', 'Ravitaillement': '#0E7490', 'Base de vie': '#1E3350', 'Point d’eau': '#0891B2', 'Danger': '#C62828' }
+const KIND_COLORS: Record<string, string> = { 'Départ': '#15803D', 'Départ / Arrivée': '#15803D', 'Arrivée': '#0F1B2D', 'CP': '#FF5F1F', 'Ravitaillement': '#0E7490', 'Base de vie': '#1E3350', 'Point d’eau': '#0891B2', 'Danger': '#C62828' }
 export const CP_KINDS = Object.keys(KIND_COLORS)
 
-function cpIcon(cp: MapCp, highlight: boolean) {
+function cpIcon(cp: MapCp, highlight: boolean, totalKm?: number | null) {
   const color = KIND_COLORS[cp.kind] ?? '#FF5F1F'
   const label = cp.name.length > 18 ? `${cp.name.slice(0, 17)}…` : cp.name
   return L.divIcon({
     className: 'cp-icon',
-    html: `<span class="cp-dot" style="background:${color};${highlight ? 'outline:3px solid #6EE7F9;' : ''}"></span><span class="cp-label">${escapeHtml(label)}${cp.km != null ? ` · ${Number(cp.km).toFixed(0)} km` : ''}</span>`,
+    html: `<span class="cp-dot" style="background:${color};${highlight ? 'outline:3px solid #6EE7F9;' : ''}"></span><span class="cp-label">${escapeHtml(label)}${cp.km != null ? ` · ${cpKm(cp, totalKm, 0)} km` : ''}</span>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   })
@@ -66,7 +74,7 @@ export function TrackMap({ tracks, checkpoints, height = 420, onMapClick, onCpMo
       ll.forEach((p) => bounds.extend(p))
     })
     for (const cp of checkpoints) {
-      const mk = L.marker([cp.lat, cp.lng], { icon: cpIcon(cp, cp.id === selectedCp), draggable: editable, keyboard: true, title: cp.name }).addTo(g)
+      const mk = L.marker([cp.lat, cp.lng], { icon: cpIcon(cp, cp.id === selectedCp, (() => { const t = tracks.find((x) => x.id === cp.track_id); return t?.points[t.points.length - 1]?.[3] })()), draggable: editable, keyboard: true, title: cp.name }).addTo(g)
       mk.on('click', () => handlers.current.onCpClick?.(cp.id))
       mk.on('dragend', () => { const p = mk.getLatLng(); handlers.current.onCpMove?.(cp.id, p.lat, p.lng) })
       bounds.extend([cp.lat, cp.lng])

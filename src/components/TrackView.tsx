@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { usePoll } from '../lib/util'
 import { downloadText } from '../lib/gpx'
 import type { Pt } from '../lib/gpx'
-import { TRACK_COLORS, TrackMap } from './TrackMap'
+import { TRACK_COLORS, TrackMap, cpKm } from './TrackMap'
 import type { MapCp } from './TrackMap'
 import { useToast } from './ui'
 import { Profiles } from './Profiles'
@@ -46,7 +46,7 @@ export function TrackView({ code, canDownload, highlight }: { code: string; canD
           <div className="small" style={{ fontWeight: 700, margin: '4px 0 6px' }}>Points de contrôle</div>
           {data.checkpoints.map((c) => (
             <div key={c.id} className="row small" style={{ padding: '6px 0', borderTop: '1px solid var(--line)' }}>
-              <span className="code" style={{ width: 64 }}>{c.km != null ? `km ${Number(c.km).toFixed(0)}` : '—'}</span>
+              <span className="code" style={{ minWidth: 64 }}>{c.km != null ? `km ${cpKm(c, data.tracks.find((t) => t.id === c.track_id)?.length_km, 0)}` : '—'}</span>
               <span className="grow" style={{ fontWeight: 600 }}>{c.name}</span>
               <span className="muted">{c.kind}</span>
             </div>

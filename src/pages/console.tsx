@@ -27,7 +27,13 @@ export function ConsoleHome() {
     ])
     if (orgs.error) throw orgs.error
     if (events.error) throw events.error
-    const list = (orgs.data ?? []).map((o) => o.organizations as unknown as { id: string; name: string }).filter(Boolean)
+    let list = (orgs.data ?? []).map((o) => o.organizations as unknown as { id: string; name: string }).filter(Boolean)
+    // L'admin de la plateforme voit toutes les organisations et tous les événements dans la console.
+    if (admin.data) {
+      const all = await supabase.from('organizations').select('id,name').order('name')
+      if (all.error) throw all.error
+      list = all.data
+    }
     const mine = new Set(list.map((o) => o.id))
     return { orgs: list, events: (events.data as EventRow[]).filter((e) => mine.has(e.org_id)), admin: !!admin.data }
   }, 30000)

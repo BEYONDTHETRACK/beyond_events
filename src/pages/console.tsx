@@ -18,6 +18,7 @@ export function ConsoleHome() {
   const [orgName, setOrgName] = useState('')
   const [busy, setBusy] = useState(false)
   const { data, error, loading, reload } = usePoll(async () => {
+    await supabase.rpc('claim_invites') // rattache les invitations faites par l'admin
     const [orgs, events, admin] = await Promise.all([
       supabase.from('org_members').select('org_id, organizations(id,name)').eq('user_id', session!.user.id),
       supabase.from('events').select('*').order('created_at', { ascending: false }),
@@ -97,7 +98,7 @@ export function ConsoleHome() {
   )
 }
 
-function NewEvent({ orgId, onCreated }: { orgId: string; onCreated: (id: string) => void }) {
+export function NewEvent({ orgId, onCreated }: { orgId: string; onCreated: (id: string) => void }) {
   const notify = useToast()
   const [open, setOpen] = useState(false)
   const [f, setF] = useState({ name: '', practice: 'Bikepacking', starts_on: '', place: '', distances: '' })

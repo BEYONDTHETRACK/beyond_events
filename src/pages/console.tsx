@@ -377,29 +377,57 @@ export function MessageDetail() {
   const { ev } = useEv()
   const { mid } = useParams()
   const [tab, setTab] = useState<'todo' | 'done'>('todo')
-  const { data, error, loading } = usePoll(async () => {
-    const [m, r] = await Promise.all([
+  const notify = useToast()
+  const [relOpen, setRelOpen] = useState(false)
+  const [relChannel, setRelChannel] = useState<'app' | 'email' | 'sms'>('app')
+  const [relBusy, setRelBusy] = useState(false)
+  const { data, error, loading, reload } = usePoll(async () => {
+    const [m, r, rl] = await Promise.all([
       supabase.from('messages').select('*').eq('id', mid!).single(),
       supabase.from('message_recipients').select('participant_id,read_at,confirmed_at,participants(bib,name,distance,lang,activated_at,phone,email,code)').eq('message_id', mid!).range(0, 9999),
+      supabase.from('message_relances').select('id,channel,recipients,created_at').eq('message_id', mid!).order('created_at', { ascending: false }),
     ])
     if (m.error) throw m.error
     if (r.error) throw r.error
-    return { m: m.data as Message, r: r.data as unknown as RecipientRow[] }
+    return { m: m.data as Message, r: r.data as unknown as RecipientRow[], rl: (rl.data ?? []) as { id: string; channel: 'app' | 'email' | 'sms'; recipients: number; created_at: string }[] }
   }, 4000, [mid])
   if (loading && !data) return <Loading />
   if (!data) return <ErrorNote error={error} />
-  const { m, r } = data
+  const { m, r, rl } = data
   const total = r.length
   const read = r.filter((x) => x.read_at).length
   const conf = r.filter((x) => x.confirmed_at).length
   const doneOf = (x: RecipientRow) => (m.require_confirm ? !!x.confirmed_at : !!x.read_at)
   const todo = r.filter((x) => !doneOf(x))
   const rows = (tab === 'todo' ? todo : r.filter(doneOf)).sort((a, b) => (a.participants.bib ?? 0) - (b.participants.bib ?? 0))
+  const CHANNELS = { app: 'Notification', email: 'E-mail', sms: 'SMS' } as const
+  const relance = async () => {
+    setRelBusy(true)
+    const { data: n, error: e } = await supabase.rpc('relance_message', { p_message: m.id, p_channel: relChannel })
+    setRelBusy(false)
+    if (e) { notify(`Erreur : ${e.message}`); return }
+    notify(`Relance par ${CHANNELS[relChannel].toLowerCase()} enregistrée pour ${n} personnes.`)
+    setRelOpen(false)
+    reload()
+  }
   return (
     <>
       <Head title={m.title} sub={<><Link to={`/console/e/${ev.id}/messages`}>← Messages</Link> · {kindLabel(m.kind)} · {m.target_label || 'Tous'} · envoyé le {dateTimeFr(m.created_at)}</>}>
+        <button type="button" className="btn primary" disabled={!todo.length} aria-expanded={relOpen} onClick={() => setRelOpen(!relOpen)}>Relancer les {todo.length}</button>
+        <button type="button" className="btn primary" disabled={!todo.length} aria-expanded={relOpen} onClick={() => setRelOpen(!relOpen)}>Relancer les {todo.length}</button>
         <button type="button" className="btn" disabled={!todo.length} onClick={() => exportCodes(ev.name, todo.map((x) => x.participants), 'participants')}>Exporter les {todo.length} à relancer</button>
       </Head>
+      {relOpen && (
+        <section className="panel" aria-label="Relancer">
+          <h2 style={{ fontSize: 16 }}>Relancer {todo.length} {m.require_confirm ? "personnes qui n'ont pas confirmé" : "personnes qui n'ont pas lu"}</h2>
+          <div className="chips" role="group" aria-label="Canal de relance">
+            {(['app', 'email', 'sms'] as const).map((c) => <button key={c} type="button" className="chip green" aria-pressed={relChannel === c} onClick={() => setRelChannel(c)}>{CHANNELS[c]}</button>)}
+          </div>
+          <p className="small muted">{relChannel === 'sms' ? 'SMS : pour les personnes avec un numéro de téléphone.' : relChannel === 'email' ? 'E-mail : pour les personnes avec une adresse.' : 'Notification : sur le téléphone des personnes ayant activé leur code.'} La relance est enregistrée dans l'historique ; l'envoi réel par notification, e-mail et SMS sera branché dans une prochaine version.</p>
+          <div><button type="button" className="btn primary" disabled={relBusy || !todo.length} onClick={relance}>{relBusy ? 'Envoi…' : `Relancer par ${CHANNELS[relChannel].toLowerCase()}`}</button></div>
+        </section>
+      )}
+      {rl.length > 0 && <p className="small muted">Relances : {rl.map((x) => `${CHANNELS[x.channel]} le ${dateTimeFr(x.created_at)} (${x.recipients})`).join(' · ')}</p>}
       <div className="kpis">
         <div className="kpi"><div className="k-label">Destinataires</div><div className="k-value">{total}</div></div>
         <div className="kpi"><div className="k-label">Lu</div><div className="k-value">{read} <small className={`rate ${rateLevel(pct(read, total))}`}>{pct(read, total)} %</small></div><Progress value={total ? read / total : 0} level={rateLevel(pct(read, total))} /></div>

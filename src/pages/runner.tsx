@@ -61,12 +61,12 @@ export function Fil() {
     if (!unread || document.visibilityState !== 'visible') return
     supabase.rpc('participant_mark_read', { p_code: code, p_ids: unread.split(',') }).then(() => {})
   }, [unread, code])
-  const confirm = async (id: string) => {
+  const confirm = async (id: string, validates?: boolean) => {
     setBusy(id)
     const { error } = await supabase.rpc('participant_confirm', { p_code: code, p_message: id })
     setBusy(null)
     if (error) { notify(`Erreur : ${error.message}`); return }
-    notify('Lecture confirmée. L’organisateur le voit tout de suite.')
+    notify(validates ? 'Venue confirmée. Votre statut passe à Validé.' : 'Lecture confirmée. L’organisateur le voit tout de suite.')
     reload()
   }
   return (
@@ -80,11 +80,11 @@ export function Fil() {
             <article key={m.id} className={`card ${todo && m.kind === 'alerte' ? 'alert' : ''}`}>
               <div className="card-meta">
                 <span className={`tag ${m.kind}`}>{kindLabel(m.kind).toUpperCase()} · {dateTimeFr(m.created_at)}</span>
-                {m.require_confirm && m.confirmed_at && <span className="ok" style={{ fontWeight: 600 }}>✓ Confirmé</span>}
+                {m.require_confirm && m.confirmed_at && <span className="ok" style={{ fontWeight: 600 }}>{m.validates_attendance ? '✓ Venue confirmée' : '✓ Confirmé'}</span>}
               </div>
               <div className="card-title">{m.title}</div>
               {m.body && <div className="card-text">{m.body}</div>}
-              {todo && <button type="button" disabled={busy === m.id} className={`btn ${m.kind === 'alerte' ? 'alert' : 'primary'}`} onClick={() => confirm(m.id)}>J'ai lu et compris</button>}
+              {todo && <button type="button" disabled={busy === m.id} className={`btn ${m.kind === 'alerte' ? 'alert' : 'primary'}`} onClick={() => confirm(m.id, m.validates_attendance)}>{m.validates_attendance ? 'Je confirme ma venue' : "J'ai lu et compris"}</button>}
             </article>
           )
         })}

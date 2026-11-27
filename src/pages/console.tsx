@@ -260,7 +260,7 @@ function MessagesTable({ rows, base }: { rows: MsgWithStat[]; base: string }) {
         <tbody>
           {rows.map((m) => (
             <tr key={m.id} className="clickable" onClick={() => nav(`${base}/messages/${m.id}`)}>
-              <td><Link to={`${base}/messages/${m.id}`} style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'none' }}>{m.title}</Link><div className="small muted">{kindLabel(m.kind)}{m.require_confirm ? ' · confirmation demandée' : ''}</div></td>
+              <td><Link to={`${base}/messages/${m.id}`} style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'none' }}>{m.title}</Link><div className="small muted">{kindLabel(m.kind)}{m.validates_attendance ? ' · validation de venue' : m.require_confirm ? ' · confirmation demandée' : ''}</div></td>
               <td className="muted">{m.target_label || 'Tous'} ({m.stat.recipients})</td>
               <td className="muted">{dateTimeFr(m.created_at)}</td>
               <td><span className={`rate ${rateLevel(pct(m.stat.read, m.stat.recipients))}`}>{pct(m.stat.read, m.stat.recipients)} %</span></td>
@@ -301,6 +301,7 @@ export function Compose() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [confirm, setConfirm] = useState(false)
+  const [validate, setValidate] = useState(false)
   const [sms, setSms] = useState(false)
   const [delay, setDelay] = useState(ev.sms_default_delay_min)
   const [busy, setBusy] = useState(false)
@@ -313,7 +314,7 @@ export function Compose() {
     setBusy(true)
     const { data, error } = await supabase.rpc('send_message', {
       p_event: ev.id, p_title: title, p_body: body, p_kind: kind, p_target: t, p_label: label,
-      p_require_confirm: confirm, p_sms: sms, p_sms_delay: delay,
+      p_require_confirm: confirm || validate, p_sms: sms, p_sms_delay: delay, p_validate: validate,
     })
     setBusy(false)
     if (error) { notify(`Erreur : ${error.message}`); return }
@@ -354,7 +355,9 @@ export function Compose() {
             <div className="field"><label htmlFor="ti">Titre</label><input id="ti" className="input" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
             <div className="field"><label htmlFor="bo">Message</label><textarea id="bo" className="textarea" rows={6} value={body} onChange={(e) => setBody(e.target.value)} /></div>
             <label className="check"><input type="checkbox" checked disabled /> Notification de lecture : vous voyez qui a lu le message, et quand</label>
-            <label className="check"><input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} /> Demander une confirmation : chaque participant·e touche « J'ai lu et compris »</label>
+            <label className="check"><input type="checkbox" checked={confirm || validate} disabled={validate} onChange={(e) => setConfirm(e.target.checked)} /> Demander une confirmation : chaque participant·e touche « J'ai lu et compris »</label>
+            <label className="check"><input type="checkbox" checked={validate} onChange={(e) => { setValidate(e.target.checked); if (e.target.checked) { setConfirm(true); setT({ ...t, status: 'inscrit' }); if (!title) setTitle('Confirmez votre venue'); if (!body) setBody(`Plus qu'un mois avant ${ev.name.trim()}. Confirmez votre venue d'un geste : votre statut passera à Validé et nous saurons que nous comptons sur vous.`) } }} /> Valider la venue : la confirmation passe le statut de la personne à « Validé »</label>
+            {validate && <p className="small muted">À envoyer environ un mois avant le départ{ev.starts_on ? `, soit vers le ${dateFr(new Date(new Date(ev.starts_on).setMonth(new Date(ev.starts_on).getMonth() - 1)).toISOString())}` : ''}. Le message cible les personnes « Inscrit ». Seules elles passent à « Validé ».</p>}
             <p className="small muted">{confirm ? 'Vous suivez deux étapes : lu, puis confirmé. Les personnes qui ont lu sans confirmer apparaissent dans « Lu, pas confirmé ».' : 'Sans confirmation, vous suivez seulement la lecture. Les colonnes Confirmé afficheront « Non demandée ».'}</p>
           </section>
           <section className="panel">
@@ -370,7 +373,7 @@ export function Compose() {
             <span className={`tag ${kind}`}>{kindLabel(kind).toUpperCase()}</span>
             <div className="card-title">{title || 'Titre du message'}</div>
             <div className="card-text">{body || 'Texte du message'}</div>
-            {confirm && <div className={`btn ${kind === 'alerte' ? 'alert' : 'primary'}`}>J'ai lu et compris</div>}
+            {(confirm || validate) && <div className={`btn ${kind === 'alerte' ? 'alert' : 'primary'}`}>{validate ? 'Je confirme ma venue' : "J'ai lu et compris"}</div>}
           </div>
           <p className="small muted">Le message apparaît dans le fil de chaque participant ciblé, dès qu'il ouvre l'app. Les notifications, e-mails et la traduction automatique arrivent dans une prochaine version.</p>
         </aside>

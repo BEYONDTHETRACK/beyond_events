@@ -77,6 +77,7 @@ export interface Message {
   target: Record<string, string>
   target_label: string
   require_confirm: boolean
+  validates_attendance?: boolean
   sms_fallback: boolean
   sms_delay_min: number
   created_at: string
@@ -122,7 +123,7 @@ export interface PublicEvent {
 export interface ParticipantState {
   participant: { id: string; bib: number | null; name: string; distance: string; format: string; lang: Lang; status: RunnerStatus; code: string; email: string | null }
   event: PublicEvent
-  messages: { id: string; title: string; body: string; kind: Kind; require_confirm: boolean; created_at: string; read_at: string | null; confirmed_at: string | null }[]
+  messages: { id: string; title: string; body: string; kind: Kind; require_confirm: boolean; validates_attendance?: boolean; created_at: string; read_at: string | null; confirmed_at: string | null }[]
   private: { id: string; from_org: boolean; body: string; created_at: string }[]
 }
 

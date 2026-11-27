@@ -7,6 +7,8 @@ import * as V from './pages/volunteer'
 import * as C from './pages/console'
 import { Admin } from './pages/admin'
 import { Parcours } from './pages/parcours'
+import { Dotations } from './pages/dotations'
+import { Contacts } from './pages/contacts'
 import { AccessGate } from './components/Gate'
 
 // Routage par hash (GitHub Pages) ; en mémoire si l'app est intégrée dans une page hôte (VITE_ROUTER=memory).
@@ -56,6 +58,8 @@ export default function App() {
                 <Route path="participants" element={<C.Participants />} />
                 <Route path="parcours" element={<Parcours />} />
                 <Route path="benevoles" element={<C.Benevoles />} />
+                <Route path="dotations" element={<Dotations />} />
+                <Route path="contacts" element={<Contacts />} />
                 <Route path="inbox" element={<C.Inbox />} />
                 <Route path="fiche" element={<C.Fiche />} />
               </Route>

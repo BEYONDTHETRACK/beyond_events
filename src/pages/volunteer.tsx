@@ -1,4 +1,5 @@
 import { TrackView } from '../components/TrackView'
+import { ContactsCard, DotationCard, useExtras } from '../components/VolunteerExtras'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, Outlet, useNavigate } from 'react-router-dom'
@@ -53,6 +54,7 @@ function Header() {
 export function Poste() {
   const { s, code, reload } = useVol()
   const notify = useToast()
+  const extras = useExtras(code)
   const [showRules, setShowRules] = useState(false)
   const [reporting, setReporting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -115,6 +117,8 @@ export function Poste() {
             )}
           </section>
         )}
+        {extras.data && <DotationCard x={extras.data} code={code} reload={extras.reload} />}
+        {extras.data && <ContactsCard x={extras.data} />}
         {s.post_messages.map((m) => (
           <section key={m.id} className="card soft">
             <div className="card-meta" style={{ color: 'var(--forest-dark)', fontWeight: 700 }}><span>PC course → {m.all ? 'Tous les bénévoles' : post?.name}</span><span>{ago(m.created_at)}</span></div>

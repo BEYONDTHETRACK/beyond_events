@@ -4,7 +4,7 @@ import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { appUrl, supabase } from '../lib/supabase'
 import { ago, dateFr, download, mapColumns, normLang, parseCsv, pct, toCsv, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
-import type { EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
+import type { DotationPack, EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
 import { useAuth } from './auth'
 import { PlaceInput } from '../components/PlaceInput'
@@ -153,7 +153,7 @@ export function EventShell() {
   const base = `/console/e/${id}`
   const links: [string, string, number?][] = [
     [base, 'Tableau de bord'], [`${base}/messages`, 'Messages'], [`${base}/participants`, 'Participants'],
-    [`${base}/parcours`, 'Parcours et CP'], [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
+    [`${base}/parcours`, 'Parcours et CP'], [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/dotations`, 'Dotations'], [`${base}/contacts`, 'Contacts'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
   ]
   return (
     <EventCtx.Provider value={{ ev: data.ev, reloadEvent: reload }}>
@@ -503,9 +503,9 @@ export function Participants() {
   )
 }
 
-const V_FIELDS = { name: ['nom', 'name', 'benevole', 'nomcomplet'], first: ['prenom', 'firstname'], last: ['nomdefamille', 'lastname'], email: ['email', 'mail', 'courriel'], phone: ['telephone', 'tel', 'phone', 'portable', 'mobile'], post: ['poste', 'post', 'affectation'] }
+const V_FIELDS = { name: ['nom', 'name', 'benevole', 'nomcomplet'], first: ['prenom', 'firstname'], last: ['nomdefamille', 'lastname'], email: ['email', 'mail', 'courriel'], phone: ['telephone', 'tel', 'phone', 'portable', 'mobile'], post: ['poste', 'post', 'affectation'], pack: ['dotation', 'typededotation', 'pack'] }
 
-function ImportPeople({ kind, eventId, posts = [], onDone }: { kind: 'participants' | 'benevoles'; eventId: string; posts?: Post[]; onDone: () => void }) {
+function ImportPeople({ kind, eventId, posts = [], packs = [], onDone }: { kind: 'participants' | 'benevoles'; eventId: string; posts?: Post[]; packs?: DotationPack[]; onDone: () => void }) {
   const notify = useToast()
   const [text, setText] = useState('')
   const [one, setOne] = useState({ name: '', email: '', phone: '', distance: '', bib: '', post: '' })
@@ -536,6 +536,25 @@ function ImportPeople({ kind, eventId, posts = [], onDone }: { kind: 'participan
         for (const c of created ?? []) known.set(key(c.name), c.id)
       }
       payload = records.map(({ name, g }) => ({ event_id: eventId, name, email: g('email') || null, phone: g('phone') || null, post_id: known.get(key(g('post'))) ?? null }))
+      // Colonne « Dotation » : type de dotation individuel (créé s'il n'existe pas).
+      const packNames = records.map(({ g }) => g('pack').trim())
+      if (packNames.some(Boolean)) {
+        const kp = new Map(packs.map((k) => [key(k.name), k.id]))
+        const newPacks = [...new Set(packNames.filter((n) => n && !kp.has(key(n))))]
+        if (newPacks.length) {
+          const { data: cp } = await supabase.from('dotation_packs').insert(newPacks.map((n) => ({ event_id: eventId, name: n }))).select('id,name')
+          for (const c of cp ?? []) kp.set(key(c.name), c.id)
+        }
+        const { data: ins, error: verr } = await supabase.from('volunteers').insert(payload).select('id')
+        setBusy(false)
+        if (verr) { notify(`Erreur : ${verr.message}`); return }
+        const links = (ins ?? []).map((v, i) => ({ pack_id: kp.get(key(packNames[i])), volunteer_id: v.id, event_id: eventId })).filter((x) => x.pack_id)
+        if (links.length) await supabase.from('dotation_pack_volunteers').insert(links)
+        notify(`${payload.length} bénévoles importés, ${links.length} avec une dotation individuelle.`)
+        setText('')
+        onDone()
+        return
+      }
     }
     const { error } = await supabase.from(kind === 'participants' ? 'participants' : 'volunteers').insert(payload)
     setBusy(false)
@@ -556,7 +575,7 @@ function ImportPeople({ kind, eventId, posts = [], onDone }: { kind: 'participan
   }
   const sample = kind === 'participants'
     ? 'Dossard;Nom;E-mail;Téléphone;Distance;Format;Langue\n101;Léa Martin;lea@example.com;0600000000;300 km;Solo;FR'
-    : 'Nom;E-mail;Téléphone;Poste\nPaul Durand;paul@example.com;0600000000;Ravitaillement CP1'
+    : 'Nom;E-mail;Téléphone;Poste;Dotation\nPaul Durand;paul@example.com;0600000000;Ravitaillement CP1;Haute montagne'
   return (
     <section className="panel">
       <h2>Ajouter des {kind === 'participants' ? 'participants' : 'bénévoles'}</h2>
@@ -596,16 +615,33 @@ export function Benevoles() {
   const [pmText, setPmText] = useState('')
   const [chatPost, setChatPost] = useState('')
   const { data, reload } = usePoll(async () => {
-    const [p, v] = await Promise.all([
+    const [p, v, pk, pp, pv] = await Promise.all([
       supabase.from('posts').select('*').eq('event_id', ev.id).order('position').order('name'),
       supabase.from('volunteers').select('*').eq('event_id', ev.id).order('name').range(0, 9999),
+      supabase.from('dotation_packs').select('*').eq('event_id', ev.id).order('created_at'),
+      supabase.from('dotation_pack_posts').select('pack_id,post_id').eq('event_id', ev.id),
+      supabase.from('dotation_pack_volunteers').select('pack_id,volunteer_id').eq('event_id', ev.id),
     ])
     if (p.error) throw p.error
     if (v.error) throw v.error
-    return { posts: p.data as Post[], vols: v.data as Volunteer[] }
+    return {
+      posts: p.data as Post[], vols: v.data as Volunteer[], packs: (pk.data ?? []) as DotationPack[],
+      packPosts: (pp.data ?? []) as { pack_id: string; post_id: string }[], packVols: (pv.data ?? []) as { pack_id: string; volunteer_id: string }[],
+    }
   }, 6000, [ev.id])
   const posts = data?.posts ?? []
   const vols = data?.vols ?? []
+  const packs = data?.packs ?? []
+  const postPacks = (postId: string) => packs.filter((k) => k.for_all || data?.packPosts.some((x) => x.pack_id === k.id && x.post_id === postId)).map((k) => k.name)
+  const volPack = (vId: string) => data?.packVols.find((x) => x.volunteer_id === vId)?.pack_id ?? ''
+  const setVolPack = async (v: Volunteer, packId: string) => {
+    await supabase.from('dotation_pack_volunteers').delete().eq('volunteer_id', v.id)
+    if (packId) {
+      const { error } = await supabase.from('dotation_pack_volunteers').insert({ pack_id: packId, volunteer_id: v.id, event_id: ev.id })
+      if (error) notify(`Erreur : ${error.message}`)
+    }
+    reload()
+  }
   const here = (v: Volunteer) => !!v.checked_in_at && !v.checked_out_at
   const assign = async (v: Volunteer, post: string) => {
     const { error } = await supabase.from('volunteers').update({ post_id: post || null }).eq('id', v.id)
@@ -631,14 +667,14 @@ export function Benevoles() {
         <div className="kpi"><div className="k-label">Consignes lues</div><div className="k-value">{vols.filter((v) => v.instructions_read_at).length} <small>/ {vols.length}</small></div></div>
         <div className="kpi"><div className="k-label">Sur leur poste</div><div className="k-value">{vols.filter(here).length} <small>/ {vols.length}</small></div><div className="k-sub">pointage en direct</div></div>
       </div>
-      {editing && <PostForm eventId={ev.id} post={editing === 'new' ? null : editing} onDone={() => { setEditing(null); reload() }} />}
-      {importing && <ImportPeople kind="benevoles" eventId={ev.id} posts={posts} onDone={() => { setImporting(false); reload() }} />}
+      {editing && <PostForm eventId={ev.id} post={editing === 'new' ? null : editing} packs={packs.filter((k) => !k.for_all)} linked={editing === 'new' ? [] : (data?.packPosts ?? []).filter((x) => x.post_id === editing.id).map((x) => x.pack_id)} onDone={() => { setEditing(null); reload() }} />}
+      {importing && <ImportPeople kind="benevoles" eventId={ev.id} posts={posts} packs={packs} onDone={() => { setImporting(false); reload() }} />}
       <div className="cols">
         <section className="panel" style={{ flex: '2 1 560px' }}>
           <h2>Postes</h2>
           <div className="table-wrap">
             <table className="t" style={{ minWidth: 600 }}>
-              <thead><tr><th>Poste</th><th>Horaires</th><th>Responsable</th><th>Confirmés</th><th>Sur place</th><th><span className="sr-only">Actions</span></th></tr></thead>
+              <thead><tr><th>Poste</th><th>Horaires</th><th>Responsable</th><th>Dotation</th><th>Confirmés</th><th>Sur place</th><th><span className="sr-only">Actions</span></th></tr></thead>
               <tbody>
                 {posts.map((p) => {
                   const team = vols.filter((v) => v.post_id === p.id)
@@ -647,32 +683,34 @@ export function Benevoles() {
                   return (
                     <tr key={p.id}>
                       <td style={{ fontWeight: 600 }}>{p.name}</td><td className="muted">{p.hours}</td><td className="muted">{p.lead_name}</td>
+                      <td className="small">{postPacks(p.id).join(', ') || <span className="muted">—</span>}</td>
                       <td className={c >= p.capacity ? 'ok' : 'ko'} style={{ fontWeight: 600 }}>{c} / {p.capacity}</td>
                       <td className={h >= p.capacity ? 'ok' : 'muted'}>{h} / {p.capacity}</td>
                       <td style={{ whiteSpace: 'nowrap' }}><button type="button" className="btn" style={{ minHeight: 36 }} onClick={() => setEditing(p)}>Modifier</button> <button type="button" className="btn" style={{ minHeight: 36 }} onClick={() => setChatPost(p.id)}>Groupe</button></td>
                     </tr>
                   )
                 })}
-                {!posts.length && <tr><td colSpan={6} className="muted">Aucun poste. Crée tes postes (accueil, ravitaillements, signaleurs…) puis affecte les bénévoles.</td></tr>}
+                {!posts.length && <tr><td colSpan={7} className="muted">Aucun poste. Crée tes postes (accueil, ravitaillements, signaleurs…) puis affecte les bénévoles.</td></tr>}
               </tbody>
             </table>
           </div>
           <h2 style={{ marginTop: 8 }}>Bénévoles</h2>
           <div className="table-wrap">
-            <table className="t" style={{ minWidth: 700 }}>
-              <thead><tr><th>Nom</th><th>Poste</th><th>Code</th><th>Activé</th><th>Présence</th><th>Sur place</th></tr></thead>
+            <table className="t" style={{ minWidth: 860 }}>
+              <thead><tr><th>Nom</th><th>Poste</th><th>Dotation perso</th><th>Code</th><th>Activé</th><th>Présence</th><th>Sur place</th></tr></thead>
               <tbody>
                 {vols.map((v) => (
                   <tr key={v.id}>
                     <td>{v.name}<div className="small muted">{v.phone ?? v.email}</div></td>
                     <td><select className="select" aria-label={`Poste de ${v.name}`} value={v.post_id ?? ''} onChange={(e) => assign(v, e.target.value)} style={{ minHeight: 36 }}><option value="">Non affecté</option>{posts.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></td>
+                    <td><select className="select" aria-label={`Dotation individuelle de ${v.name}`} value={volPack(v.id)} onChange={(e) => setVolPack(v, e.target.value)} style={{ minHeight: 36 }}><option value="">Celle du poste</option>{packs.filter((k) => !k.for_all).map((k) => <option key={k.id} value={k.id}>+ {k.name}</option>)}</select></td>
                     <td className="code">{v.code}</td>
                     <td className={v.activated_at ? 'ok' : 'ko'}>{v.activated_at ? 'Oui' : 'Non'}</td>
                     <td className={v.confirmed_at ? 'ok' : 'ko'}>{v.confirmed_at ? 'Confirmée' : 'En attente'}</td>
                     <td className={here(v) ? 'ok' : 'muted'}>{here(v) ? `Depuis ${ago(v.checked_in_at)}` : '—'}</td>
                   </tr>
                 ))}
-                {!vols.length && <tr><td colSpan={6} className="muted">Aucun bénévole.</td></tr>}
+                {!vols.length && <tr><td colSpan={7} className="muted">Aucun bénévole.</td></tr>}
               </tbody>
             </table>
           </div>
@@ -691,13 +729,20 @@ export function Benevoles() {
   )
 }
 
-function PostForm({ eventId, post, onDone }: { eventId: string; post: Post | null; onDone: () => void }) {
+function PostForm({ eventId, post, packs, linked, onDone }: { eventId: string; post: Post | null; packs: DotationPack[]; linked: string[]; onDone: () => void }) {
   const notify = useToast()
+  const [sel, setSel] = useState<string[]>(linked)
   const [f, setF] = useState({ name: post?.name ?? '', hours: post?.hours ?? '', place: post?.place ?? '', lead_name: post?.lead_name ?? '', lead_phone: post?.lead_phone ?? '', capacity: post?.capacity ?? 2, instructions: post?.instructions ?? '' })
   const save = async (e: FormEvent) => {
     e.preventDefault()
-    const { error } = post ? await supabase.from('posts').update(f).eq('id', post.id) : await supabase.from('posts').insert({ ...f, event_id: eventId })
-    if (error) { notify(`Erreur : ${error.message}`); return }
+    const res = post ? await supabase.from('posts').update(f).eq('id', post.id).select('id').single() : await supabase.from('posts').insert({ ...f, event_id: eventId }).select('id').single()
+    if (res.error) { notify(`Erreur : ${res.error.message}`); return }
+    // Types de dotation rattachés au poste
+    const postId = res.data.id as string
+    const toAdd = sel.filter((id) => !linked.includes(id))
+    const toDel = linked.filter((id) => !sel.includes(id))
+    if (toDel.length) await supabase.from('dotation_pack_posts').delete().eq('post_id', postId).in('pack_id', toDel)
+    if (toAdd.length) await supabase.from('dotation_pack_posts').insert(toAdd.map((pack_id) => ({ pack_id, post_id: postId, event_id: eventId })))
     onDone()
   }
   const del = async () => {
@@ -715,6 +760,12 @@ function PostForm({ eventId, post, onDone }: { eventId: string; post: Post | nul
       <div className="field"><label htmlFor="pr">Responsable</label><input id="pr" className="input" value={f.lead_name} onChange={(e) => setF({ ...f, lead_name: e.target.value })} /></div>
       <div className="field"><label htmlFor="pt">Téléphone du responsable</label><input id="pt" className="input" value={f.lead_phone} onChange={(e) => setF({ ...f, lead_phone: e.target.value })} /></div>
       <div className="field" style={{ gridColumn: '1 / -1' }}><label htmlFor="pi">Consignes (les bénévoles doivent confirmer les avoir lues)</label><textarea id="pi" className="textarea" rows={3} value={f.instructions} onChange={(e) => setF({ ...f, instructions: e.target.value })} /></div>
+      <fieldset style={{ gridColumn: '1 / -1', border: 0, padding: 0, margin: 0 }}>
+        <legend className="small" style={{ fontWeight: 700, marginBottom: 6 }}>Dotation du poste</legend>
+        {packs.length ? (
+          <div className="chips">{packs.map((k) => <button key={k.id} type="button" className="chip green" aria-pressed={sel.includes(k.id)} onClick={() => setSel(sel.includes(k.id) ? sel.filter((x) => x !== k.id) : [...sel, k.id])}>{k.name}</button>)}</div>
+        ) : <p className="small muted">Crée des types de dotation dans l'onglet Dotations pour les rattacher au poste.</p>}
+      </fieldset>
       <div className="row" style={{ gridColumn: '1 / -1' }}><button type="submit" className="btn primary">Enregistrer</button><button type="button" className="btn" onClick={onDone}>Annuler</button>{post && <button type="button" className="btn" style={{ color: 'var(--danger)', marginLeft: 'auto' }} onClick={del}>Supprimer</button>}</div>
     </form>
   )

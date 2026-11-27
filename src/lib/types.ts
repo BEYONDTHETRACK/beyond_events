@@ -20,6 +20,7 @@ export interface EventRow {
   relaunch_every_days: number
   relaunch_until_days_before: number
   sms_default_delay_min: number
+  sizes_deadline?: string | null
   created_at: string
 }
 
@@ -140,4 +141,20 @@ export interface CodeSession {
   code: string
   name: string
   event_name: string
+}
+
+export interface EventContact { id: string; event_id: string; role: string; name: string; phone: string | null; email: string | null; note: string; position: number }
+export interface DotationItem { id: string; event_id: string; name: string; kind: 'don' | 'pret'; sizes: string[]; position: number }
+export interface DotationPack { id: string; event_id: string; name: string; for_all: boolean }
+export interface PackItem { pack_id: string; item_id: string; qty: number }
+export interface VolunteerDotationRow {
+  volunteer_id: string; volunteer_name: string; post_name: string | null; item_id: string; item_name: string; kind: 'don' | 'pret'
+  sizes: string[]; qty: number; packs: string; size: string | null; given_at: string | null; returned_at: string | null
+}
+export interface VolunteerExtras {
+  sizes_deadline: string | null
+  can_choose: boolean
+  contacts: { id: string; role: string; name: string; phone: string | null; email: string | null; note: string }[]
+  dotation: { item_id: string; name: string; kind: 'don' | 'pret'; sizes: string[]; qty: number; packs: string; size: string | null; given_at: string | null; returned_at: string | null }[]
+  post_packs: string[]
 }

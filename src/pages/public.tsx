@@ -19,8 +19,11 @@ export function Bienvenue() {
   }
   resumed = true
   return (
-    <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+    <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '20px 24px 28px', gap: 14 }}>
+      <div className="welcome-top">
+        <Link className="btn welcome-org" to="/console">{Icon.console} Accès organisateur</Link>
+      </div>
+      <div className="welcome-hero" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
         <Symbol size={76} />
         <h1 aria-label="Beyond Events" style={{ fontSize: 44, lineHeight: 1, fontWeight: 700 }}><Wordmark size={44} /></h1>
         <p style={{ fontSize: 16, lineHeight: 1.5, color: '#B8C4D2' }}>Toutes les infos de ta course, au bon moment, dans ta langue.</p>
@@ -32,7 +35,6 @@ export function Bienvenue() {
       )}
       <Link className={`btn big block ${s ? '' : 'primary'}`} to="/rejoindre">J'ai un code personnel</Link>
       <Link className="btn big block" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/evenements">Découvrir les événements</Link>
-      <Link to="/console" style={{ color: '#B8C4D2', textAlign: 'center', fontSize: 14, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Vous organisez une course ? Accéder à la console</Link>
       <Link to="/confidentialite" style={{ color: '#8A97A8', textAlign: 'center', fontSize: 12 }}>Confidentialité</Link>
     </div>
   )

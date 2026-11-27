@@ -236,7 +236,7 @@ table.t tr.clickable:hover td { background: #F4F6F8; }
   /* Accueil */
   .screen.welcome { align-items: center; justify-content: center; text-align: center; padding: 64px 24px !important; background: radial-gradient(circle at 75% 15%, #1E3350 0, var(--nuit) 60%) !important; }
   .screen.welcome > * { max-width: 460px !important; }
-  .screen.welcome > div:first-child { flex: 0 0 auto !important; align-items: center; margin-bottom: 24px; }
+  .screen.welcome > .welcome-hero { flex: 0 0 auto !important; align-items: center; margin-bottom: 24px; }
   .screen.welcome h1 { font-size: 52px !important; }
   .screen.welcome p { font-size: 19px !important; }
 
@@ -303,3 +303,12 @@ html.native-ios .side { padding-top: max(16px, env(safe-area-inset-top)); }
 .legal-body h1 { font-size: 32px; margin-bottom: 4px; }
 .legal-body h2 { font-size: 19px; margin: 26px 0 6px; }
 .legal-body ul { padding-left: 20px; }
+
+/* Accueil : accès organisateur en haut de l'écran */
+.welcome-top { display: flex; justify-content: flex-end; width: 100%; }
+.btn.welcome-org { background: rgba(255,255,255,.06); color: #fff; border-color: rgba(255,255,255,.35); gap: 8px; min-height: 44px; }
+.btn.welcome-org:hover { background: rgba(255,255,255,.12); }
+@media (min-width: 761px) {
+  .screen.welcome > .welcome-top { position: absolute; top: 24px; right: max(24px, calc((100% - 1040px) / 2)); width: auto; max-width: none !important; }
+  .screen.welcome { position: relative; }
+}

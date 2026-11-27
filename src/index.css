@@ -26,6 +26,9 @@
   --vert: #8FF573;
   --vert-ink: #15803D;
   --vert-soft: #E3FBDA;
+  --jaune: #FFD23F;
+  --jaune-ink: #8A6400;
+  --jaune-soft: #FFF3C4;
   --danger: #C62828;
   --danger-soft: #FDE4E4;
   /* Anciens noms, conservés pour les pages */
@@ -125,7 +128,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chip[aria-pressed='true'] { background: var(--nuit); border-color: var(--nuit); color: #fff; }
 .chip.green[aria-pressed='true'] { background: var(--nuit); border-color: var(--nuit); box-shadow: inset 0 -3px 0 var(--cyan); }
 .progress { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
-.progress > div { height: 100%; background: var(--vert); border-radius: 999px; transition: width .6s; }
+.progress > div { height: 100%; background: var(--vert); border-radius: 999px; transition: width .6s, background-color .3s; }
+.progress.mid > div { background: var(--jaune); }
+.progress.low > div { background: var(--orange); }
+/* Taux de lecture et de confirmation : vert dès 75 %, jaune de 50 à 74 %, orange en dessous. Le chiffre reste toujours affiché. */
+.rate { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 700; }
+.rate.ok { background: var(--vert-soft); color: var(--vert-ink); }
+.rate.mid { background: var(--jaune-soft); color: var(--jaune-ink); }
+.rate.low { background: var(--orange-soft); color: var(--orange-ink); }
+.kpi .k-value small.rate { font-size: 17px; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--nuit); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,.25); max-width: 90vw; }
 .floating { position: absolute; left: 20px; right: 20px; bottom: 24px; min-height: 56px; border-radius: 16px; background: rgba(15,27,45,.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.18); color: #fff; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; box-shadow: 0 8px 24px rgba(15,27,45,.25); }
 .fade-bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: linear-gradient(to bottom, rgba(244,246,248,0), rgba(244,246,248,.95) 55%); pointer-events: none; }

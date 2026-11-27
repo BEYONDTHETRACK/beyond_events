@@ -68,9 +68,9 @@ export function BackBar({ to, title, close }: { to: string; title?: string; clos
   )
 }
 
-export function Progress({ value }: { value: number }) {
+export function Progress({ value, level }: { value: number; level?: 'ok' | 'mid' | 'low' }) {
   const v = Math.max(0, Math.min(1, value || 0))
-  return <div className="progress" role="img" aria-label={`${Math.round(v * 100)} %`}><div style={{ width: `${Math.round(v * 100)}%` }} /></div>
+  return <div className={`progress${level && level !== 'ok' ? ` ${level}` : ''}`} role="img" aria-label={`${Math.round(v * 100)} %`}><div style={{ width: `${Math.round(v * 100)}%` }} /></div>
 }
 
 export function Loading({ text = 'Chargement…' }: { text?: string }) {

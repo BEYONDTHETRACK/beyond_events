@@ -75,6 +75,10 @@ export function dateFr(iso: string | null | undefined) {
 export function pct(a: number, b: number) {
   return b ? Math.round((a / b) * 100) : 0
 }
+// Niveau d'un taux de lecture ou de confirmation : vert dès 75 %, jaune de 50 à 74 %, orange en dessous.
+export function rateLevel(p: number): 'ok' | 'mid' | 'low' {
+  return p >= 75 ? 'ok' : p >= 50 ? 'mid' : 'low'
+}
 
 // ---------- CSV ----------
 export function parseCsv(text: string): string[][] {

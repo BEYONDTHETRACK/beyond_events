@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { appUrl, supabase } from '../lib/supabase'
-import { ago, dateFr, download, mapColumns, normLang, parseCsv, pct, toCsv, usePoll } from '../lib/util'
+import { ago, dateFr, download, mapColumns, normLang, parseCsv, pct, rateLevel, toCsv, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
 import type { DotationPack, EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
@@ -263,8 +263,8 @@ function MessagesTable({ rows, base }: { rows: MsgWithStat[]; base: string }) {
               <td><Link to={`${base}/messages/${m.id}`} style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'none' }}>{m.title}</Link><div className="small muted">{kindLabel(m.kind)}{m.require_confirm ? ' · confirmation demandée' : ''}</div></td>
               <td className="muted">{m.target_label || 'Tous'} ({m.stat.recipients})</td>
               <td className="muted">{ago(m.created_at)}</td>
-              <td style={{ fontWeight: 700 }}>{pct(m.stat.read, m.stat.recipients)} %</td>
-              <td style={{ fontWeight: 700 }}>{m.require_confirm ? `${pct(m.stat.confirmed, m.stat.recipients)} %` : '—'}</td>
+              <td><span className={`rate ${rateLevel(pct(m.stat.read, m.stat.recipients))}`}>{pct(m.stat.read, m.stat.recipients)} %</span></td>
+              <td>{m.require_confirm ? <span className={`rate ${rateLevel(pct(m.stat.confirmed, m.stat.recipients))}`}>{pct(m.stat.confirmed, m.stat.recipients)} %</span> : '—'}</td>
             </tr>
           ))}
         </tbody>
@@ -402,8 +402,8 @@ export function MessageDetail() {
       </Head>
       <div className="kpis">
         <div className="kpi"><div className="k-label">Destinataires</div><div className="k-value">{total}</div></div>
-        <div className="kpi"><div className="k-label">Lu</div><div className="k-value">{read} <small>{pct(read, total)} %</small></div><Progress value={total ? read / total : 0} /></div>
-        {m.require_confirm && <div className="kpi"><div className="k-label">Confirmé</div><div className="k-value">{conf} <small>{pct(conf, total)} %</small></div><Progress value={total ? conf / total : 0} /></div>}
+        <div className="kpi"><div className="k-label">Lu</div><div className="k-value">{read} <small className={`rate ${rateLevel(pct(read, total))}`}>{pct(read, total)} %</small></div><Progress value={total ? read / total : 0} level={rateLevel(pct(read, total))} /></div>
+        {m.require_confirm && <div className="kpi"><div className="k-label">Confirmé</div><div className="k-value">{conf} <small className={`rate ${rateLevel(pct(conf, total))}`}>{pct(conf, total)} %</small></div><Progress value={total ? conf / total : 0} level={rateLevel(pct(conf, total))} /></div>}
         <div className="kpi" style={{ background: 'var(--orange-soft)', borderColor: '#FFC9AE' }}><div className="k-label ko" style={{ fontWeight: 600 }}>{m.require_confirm ? 'Pas encore confirmé' : 'Pas encore lu'}</div><div className="k-value ko">{todo.length}</div></div>
       </div>
       <section className="panel">

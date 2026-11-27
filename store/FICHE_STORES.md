@@ -12,7 +12,7 @@ Textes à copier dans App Store Connect et la Google Play Console.
 | Éditeur | Beyond The Track |
 | Catégorie | Sports (secondaire : Productivité) |
 | Prix | Gratuit |
-| Politique de confidentialité | https://beyondthetrack.github.io/beyond_events/#/confidentialite |
+| Politique de confidentialité | https://beyondthetrack.github.io/beyond_events/app/#/confidentialite |
 | Assistance | contact@beyondthetrack.fr |
 | Langues | Français (principale), anglais |
 

@@ -3,7 +3,10 @@
 Web app (PC et mobile, installable) pour la communication des organisateurs d'événements d'endurance
 avec leurs participants et leurs bénévoles. Un événement = une « room » : chacun y entre avec son code personnel.
 
-En ligne : https://beyondthetrack.github.io/beyond_events/
+En ligne :
+
+- site vitrine : https://beyondthetrack.github.io/beyond_events/
+- web app : https://beyondthetrack.github.io/beyond_events/app/
 
 ## Ce que fait la V1
 
@@ -38,5 +41,18 @@ npm run build    # version à déployer (dossier dist/)
 
 ## Réglage Supabase à faire une fois
 
-Authentication › URL Configuration : Site URL et Redirect URLs = `https://beyondthetrack.github.io/beyond_events/`
+Authentication › URL Configuration : Site URL et Redirect URLs = `https://beyondthetrack.github.io/beyond_events/app/`
 (pour les liens de confirmation de compte et de mot de passe oublié).
+
+## Mise en ligne (GitHub Pages, branche `gh-pages`)
+
+La branche `gh-pages` contient deux choses :
+
+- à la racine : le site vitrine, copie du dossier `vitrine/` (`index.html`, `site/`, `sw.js`) ;
+- dans `app/` : la web app, copie du dossier `dist/` après `npm run build`.
+
+Pour publier une nouvelle version de la web app, remplacer **uniquement** le contenu de `app/` sur `gh-pages`.
+Ne pas recopier `dist/` à la racine : cela écraserait le site vitrine.
+
+Le site vitrine renvoie vers `app/` les anciens liens de la web app (`#/...`) et les retours de connexion Supabase.
+Le `sw.js` de la racine désinscrit l'ancien service worker de la web app.

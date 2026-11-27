@@ -5,7 +5,7 @@ export const isNative = Capacitor.isNativePlatform()
 export const platform = Capacitor.getPlatform() // 'web' | 'ios' | 'android'
 
 // Adresse publique de la web app : sert aux liens « rejoindre » exportés et aux e-mails de connexion.
-export const WEB_URL = 'https://beyondthetrack.github.io/beyond_events/'
+export const WEB_URL = 'https://beyondthetrack.github.io/beyond_events/app/'
 
 // Enregistre un fichier (CSV, GPX) : téléchargement sur le web, feuille de partage sur mobile.
 export async function saveFile(name: string, content: string, mime: string) {

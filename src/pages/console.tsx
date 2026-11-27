@@ -347,7 +347,9 @@ export function Compose() {
           <section className="panel">
             <div className="field"><label htmlFor="ti">Titre</label><input id="ti" className="input" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
             <div className="field"><label htmlFor="bo">Message</label><textarea id="bo" className="textarea" rows={6} value={body} onChange={(e) => setBody(e.target.value)} /></div>
-            <label className="check"><input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} /> Demander une confirmation de lecture</label>
+            <label className="check"><input type="checkbox" checked disabled /> Notification de lecture : vous voyez qui a lu le message, et quand</label>
+            <label className="check"><input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} /> Demander une confirmation : chaque participant·e touche « J'ai lu et compris »</label>
+            <p className="small muted">{confirm ? 'Vous suivez deux étapes : lu, puis confirmé. Les personnes qui ont lu sans confirmer apparaissent dans « Lu, pas confirmé ».' : 'Sans confirmation, vous suivez seulement la lecture. Les colonnes Confirmé afficheront « Non demandée ».'}</p>
           </section>
           <section className="panel">
             <h2 style={{ fontSize: 16 }}>Bascule SMS</h2>

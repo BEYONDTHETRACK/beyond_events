@@ -25,6 +25,7 @@ export function Bienvenue() {
       <Link className={`btn big block ${s ? '' : 'primary'}`} to="/rejoindre">J'ai un code personnel</Link>
       <Link className="btn big block" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/evenements">Découvrir les événements</Link>
       <Link to="/console" style={{ color: '#B8C4D2', textAlign: 'center', fontSize: 14, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Vous organisez une course ? Accéder à la console</Link>
+      <Link to="/confidentialite" style={{ color: '#8A97A8', textAlign: 'center', fontSize: 12 }}>Confidentialité</Link>
     </div>
   )
 }

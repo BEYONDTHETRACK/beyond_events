@@ -1,3 +1,4 @@
+import { isNative } from '../lib/native'
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
@@ -58,7 +59,8 @@ function Login() {
         <h1 style={{ fontSize: 28 }}>Console organisateur</h1>
         <div className="chips">
           <button type="button" className="chip green" aria-pressed={mode === 'in'} onClick={() => setMode('in')}>Se connecter</button>
-          <button type="button" className="chip green" aria-pressed={mode === 'up'} onClick={() => setMode('up')}>Créer un compte</button>
+          {/* Dans l'app mobile, les comptes organisateurs se créent sur le web (pas de création de compte dans l'app). */}
+          {!isNative && <button type="button" className="chip green" aria-pressed={mode === 'up'} onClick={() => setMode('up')}>Créer un compte</button>}
         </div>
         <div className="field"><label htmlFor="em">{mode === 'in' ? 'E-mail ou identifiant' : 'E-mail'}</label><input id="em" type={mode === 'in' ? 'text' : 'email'} required autoComplete="username" autoCapitalize="none" className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         {mode !== 'reset' && (

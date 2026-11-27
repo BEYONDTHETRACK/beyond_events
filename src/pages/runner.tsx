@@ -241,6 +241,7 @@ export function Compte() {
           <p className="small muted">Pour recevoir les alertes même app fermée, ajoute Beyond Events à ton écran d'accueil (menu du navigateur › « Sur l'écran d'accueil »).</p>
         </div>
         <button type="button" className="btn big block" onClick={() => { setCodeSession(null); nav('/') }}>Se déconnecter de cette course</button>
+        <Link to="/confidentialite" className="small muted" style={{ textAlign: 'center' }}>Politique de confidentialité</Link>
       </div>
       <TabBar items={tabs} />
     </div>

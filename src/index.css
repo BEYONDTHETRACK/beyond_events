@@ -283,3 +283,11 @@ html.native .tabbar { padding-bottom: env(safe-area-inset-bottom); }
 html.native .floating { bottom: calc(16px + env(safe-area-inset-bottom)); }
 html.native-ios .login-wrap, html.native-ios .console-home { padding-top: max(28px, env(safe-area-inset-top)); }
 html.native-ios .side { padding-top: max(16px, env(safe-area-inset-top)); }
+
+/* Page de confidentialité */
+.legal { min-height: 100vh; background: var(--bg); }
+.legal-top { background: var(--nuit); padding: 16px max(20px, calc((100vw - 760px) / 2)); padding-top: max(16px, env(safe-area-inset-top)); }
+.legal-body { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; line-height: 1.6; }
+.legal-body h1 { font-size: 32px; margin-bottom: 4px; }
+.legal-body h2 { font-size: 19px; margin: 26px 0 6px; }
+.legal-body ul { padding-left: 20px; }

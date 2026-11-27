@@ -2,7 +2,7 @@ import { TrackView } from '../components/TrackView'
 import { ContactsCard, DotationCard, useExtras } from '../components/VolunteerExtras'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ago, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import type { VolunteerState } from '../lib/types'
@@ -222,6 +222,7 @@ export function CompteBenevole() {
           <p className="small muted">Garde ce code pour te reconnecter sur un autre appareil.</p>
         </div>
         <button type="button" className="btn big block" onClick={() => { setCodeSession(null); nav('/') }}>Se déconnecter de cet événement</button>
+        <Link to="/confidentialite" className="small muted" style={{ textAlign: 'center' }}>Politique de confidentialité</Link>
       </div>
       <TabBar items={tabs} />
     </div>

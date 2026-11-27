@@ -6,6 +6,7 @@ import * as R from './pages/runner'
 import * as V from './pages/volunteer'
 import * as C from './pages/console'
 import { Admin } from './pages/admin'
+import { Confidentialite } from './pages/legal'
 import { Parcours } from './pages/parcours'
 import { Dotations } from './pages/dotations'
 import { Contacts } from './pages/contacts'
@@ -65,6 +66,7 @@ export default function App() {
               </Route>
               <Route path="admin" element={<Admin />} />
             </Route>
+            <Route path="confidentialite" element={<Confidentialite />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <PasswordRecovery />

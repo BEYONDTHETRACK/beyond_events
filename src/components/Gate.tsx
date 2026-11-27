@@ -15,11 +15,11 @@ async function sha256(t: string) {
 
 export function AccessGate({ children }: { children: ReactNode }) {
   // L'app mobile publiée sur les stores n'a pas de code d'accès commun.
-  const [ok, setOk] = useState<boolean | null>(isNative ? true : null)
+  const [ok, setOk] = useState<boolean | null>(isNative || window.location.hash.startsWith('#/confidentialite') ? true : null)
   const [code, setCode] = useState('')
   const [err, setErr] = useState(false)
   useEffect(() => {
-    if (isNative) return
+    if (isNative || window.location.hash.startsWith('#/confidentialite')) return
     let v: string | null = null
     try { v = localStorage.getItem(KEY) } catch { /* stockage indisponible */ }
     setOk(v === HASH)

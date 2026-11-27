@@ -1,4 +1,5 @@
 import { TrackView } from '../components/TrackView'
+import { DocumentsCard } from '../components/DocumentsCard'
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
@@ -115,6 +116,7 @@ export function Infos() {
           <div className="row"><span className="grow muted">Format</span><strong>{s.participant.format}</strong></div>
           <div className="row"><span className="grow muted">Dossard</span><strong>{s.participant.bib ?? '—'}</strong></div>
         </div>
+        <DocumentsCard code={code} />
         <TrackView code={code} canDownload highlight={s.participant.distance} />
       </div>
       <TabBar items={tabs} />

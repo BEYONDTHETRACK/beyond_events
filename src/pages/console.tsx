@@ -153,7 +153,7 @@ export function EventShell() {
   const base = `/console/e/${id}`
   const links: [string, string, number?][] = [
     [base, 'Tableau de bord'], [`${base}/messages`, 'Messages'], [`${base}/participants`, 'Participants'],
-    [`${base}/parcours`, 'Parcours et CP'], [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/dotations`, 'Dotations'], [`${base}/contacts`, 'Contacts'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
+    [`${base}/parcours`, 'Parcours et CP'], [`${base}/benevoles`, 'Bénévoles et postes'], [`${base}/dotations`, 'Dotations'], [`${base}/contacts`, 'Contacts'], [`${base}/documents`, 'Documents'], [`${base}/inbox`, 'Boîte de réception', data.inbox], [`${base}/fiche`, 'Fiche et réglages'],
   ]
   return (
     <EventCtx.Provider value={{ ev: data.ev, reloadEvent: reload }}>

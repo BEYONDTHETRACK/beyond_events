@@ -159,3 +159,7 @@ export interface VolunteerExtras {
   dotation: { item_id: string; name: string; kind: 'don' | 'pret'; sizes: string[]; qty: number; packs: string; size: string | null; given_at: string | null; returned_at: string | null }[]
   post_packs: string[]
 }
+
+export const DOC_KINDS = ['Road book', 'Règlement', 'Plan d’accès et parkings', 'Programme et horaires', 'Briefing de course', 'Plan des postes', 'Liste de départ', 'Résultats et diplômes', 'Autre'] as const
+export type DocAudience = 'tous' | 'participants' | 'benevoles'
+export interface EventDoc { id: string; kind: string; title: string; file_name: string; mime: string; size_bytes: number; audience?: DocAudience; created_at: string }

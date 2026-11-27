@@ -1,4 +1,5 @@
 import { TrackView } from '../components/TrackView'
+import { DocumentsCard } from '../components/DocumentsCard'
 import { ContactsCard, DotationCard, useExtras } from '../components/VolunteerExtras'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
@@ -119,6 +120,7 @@ export function Poste() {
         )}
         {extras.data && <DotationCard x={extras.data} code={code} reload={extras.reload} />}
         {extras.data && <ContactsCard x={extras.data} />}
+        <DocumentsCard code={code} />
         {s.post_messages.map((m) => (
           <section key={m.id} className="card soft">
             <div className="card-meta" style={{ color: 'var(--forest-dark)', fontWeight: 700 }}><span>PC course → {m.all ? 'Tous les bénévoles' : post?.name}</span><span>{dateTimeFr(m.created_at)}</span></div>

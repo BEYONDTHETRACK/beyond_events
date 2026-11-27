@@ -42,3 +42,24 @@ export async function initNative() {
   }
   setTimeout(() => { SplashScreen.hide().catch(() => {}) }, 300)
 }
+
+// Enregistre un fichier binaire (PDF, image…) donné en base64 : téléchargement sur le web, feuille de partage sur mobile.
+export async function saveBase64(name: string, b64: string, mime: string) {
+  if (!isNative) {
+    const bin = atob(b64)
+    const bytes = new Uint8Array(bin.length)
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+    const url = URL.createObjectURL(new Blob([bytes], { type: mime }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
+    return
+  }
+  const { Filesystem, Directory } = await import('@capacitor/filesystem')
+  const { Share } = await import('@capacitor/share')
+  const safe = name.replace(/[^\w.\-]+/g, '_')
+  const res = await Filesystem.writeFile({ path: safe, data: b64, directory: Directory.Cache })
+  await Share.share({ title: name, url: res.uri, dialogTitle: name })
+}

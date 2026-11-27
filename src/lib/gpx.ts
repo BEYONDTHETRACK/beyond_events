@@ -1,3 +1,4 @@
+import { saveFile } from './native'
 // Lecture d'un fichier GPX dans le navigateur : points, distance, dénivelé positif, tracé simplifié.
 export type Pt = [number, number, number | null, number] // lat, lng, altitude, km cumulés
 
@@ -66,10 +67,5 @@ export function snap(points: Pt[], lat: number, lng: number) {
 }
 
 export function downloadText(name: string, text: string, type = 'application/gpx+xml') {
-  const url = URL.createObjectURL(new Blob([text], { type }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = name
-  a.click()
-  setTimeout(() => URL.revokeObjectURL(url), 2000)
+  saveFile(name, text, type).catch(() => {})
 }

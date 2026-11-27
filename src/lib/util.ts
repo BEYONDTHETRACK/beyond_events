@@ -1,3 +1,4 @@
+import { saveFile } from './native'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CodeSession } from './types'
 
@@ -126,14 +127,7 @@ export function toCsv(rows: (string | number | null | undefined)[][]) {
 }
 
 export function download(name: string, content: string, type = 'text/csv;charset=utf-8') {
-  const url = URL.createObjectURL(new Blob([content], { type }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = name
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 2000)
+  saveFile(name, content, type).catch(() => {})
 }
 
 export function normLang(s: string | undefined): 'FR' | 'EN' | 'ES' {

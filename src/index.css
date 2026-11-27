@@ -275,3 +275,11 @@ table.t tr.clickable:hover td { background: #F4F6F8; }
 .elev-cps { position: relative; height: 18px; }
 .elev-cps span { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: var(--orange-ink); white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
 .elev-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* App mobile (Capacitor) : zones sûres de l'écran (encoche, barre d'accueil) */
+html.native .phone-stage { min-height: 0; height: 100dvh; }
+html.native-ios .screen > .app-header, html.native-ios .welcome { padding-top: max(20px, env(safe-area-inset-top)) !important; }
+html.native .tabbar { padding-bottom: env(safe-area-inset-bottom); }
+html.native .floating { bottom: calc(16px + env(safe-area-inset-bottom)); }
+html.native-ios .login-wrap, html.native-ios .console-home { padding-top: max(28px, env(safe-area-inset-top)); }
+html.native-ios .side { padding-top: max(16px, env(safe-area-inset-top)); }

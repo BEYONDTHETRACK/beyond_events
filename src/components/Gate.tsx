@@ -1,3 +1,4 @@
+import { isNative } from '../lib/native'
 import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Brand } from './Logo'
@@ -13,10 +14,12 @@ async function sha256(t: string) {
 }
 
 export function AccessGate({ children }: { children: ReactNode }) {
-  const [ok, setOk] = useState<boolean | null>(null)
+  // L'app mobile publiée sur les stores n'a pas de code d'accès commun.
+  const [ok, setOk] = useState<boolean | null>(isNative ? true : null)
   const [code, setCode] = useState('')
   const [err, setErr] = useState(false)
   useEffect(() => {
+    if (isNative) return
     let v: string | null = null
     try { v = localStorage.getItem(KEY) } catch { /* stockage indisponible */ }
     setOk(v === HASH)

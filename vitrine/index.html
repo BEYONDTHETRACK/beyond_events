@@ -181,6 +181,18 @@ nav a.link:hover::after{transform:scaleX(1)}
 .thumbs{display:flex;flex-wrap:wrap;gap:16px}
 .thumbs .ph{flex:1 1 200px;min-width:0}
 
+/* Solution */
+.funnel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin-bottom:40px}
+.funnel .old{position:relative;border:1px solid var(--nuit-line-strong);border-radius:999px;padding:8px 16px;color:var(--nuit-muted);font-weight:500}
+.funnel .old::after{content:"";position:absolute;left:10px;right:10px;top:50%;height:2px;background:var(--orange);transform:scaleX(1);transform-origin:left;transition:transform .5s var(--ease);transition-delay:calc(.5s + var(--i,0) * .18s)}
+.js .funnel:not(.in) .old::after{transform:scaleX(0)}
+.funnel svg{color:var(--nuit-muted);flex:none}
+.funnel .new{background:var(--vert);color:var(--nuit);border-radius:999px;padding:9px 18px;font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.02em;text-transform:uppercase;transition:transform .5s var(--ease) 1.4s,opacity .5s 1.4s}
+.js .funnel:not(.in) .new{opacity:0;transform:scale(.8)}
+.sol{background:var(--nuit-raised);border:1px solid var(--nuit-line);border-radius:14px;padding:28px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:var(--nuit-muted);transition:transform .25s var(--ease),border-color .25s}
+.sol:hover{transform:translateY(-4px);border-color:var(--nuit-line-strong)}
+.sol .h3-l{color:#fff}
+
 /* Démo */
 .price{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:4px}
 form{flex:1 1 380px;min-width:0;color:#fff;background:var(--nuit);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:16px}
@@ -212,6 +224,11 @@ footer nav a{padding:11px 0}
   .band{padding:0 20px 64px}
   header{padding:10px 20px}
   nav{gap:0 18px}
+  header nav a.link{display:none}
+  header .bar{flex-wrap:nowrap;gap:12px}
+  header .wordmark{font-size:18px}
+  header .brand{gap:8px}
+  header .logo{width:34px;height:30px}
   .mosaic{aspect-ratio:auto;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}
   .mosaic .big{grid-column:span 2;grid-row:auto;aspect-ratio:16/10}
   .mosaic .ph:not(.big){aspect-ratio:1/1}
@@ -236,6 +253,7 @@ footer nav a{padding:11px 0}
 <span class="wordmark">BEYOND<i>.</i>EVENTS</span>
 </a>
 <nav aria-label="Navigation principale">
+<a class="link" href="#solution">Solution</a>
 <a class="link" href="#fonctionnement">Fonctionnement</a>
 <a class="link" href="#fonctionnalites">Fonctionnalités</a>
 <a class="link" href="#benevoles">Bénévoles</a>
@@ -303,6 +321,29 @@ footer nav a{padding:11px 0}
 <div class="card rv" style="--d:0.32s"><h3 class="h3">Réseaux sociaux</h3><p class="muted">La publication ne touche que celles et ceux qui passent par là ce jour-là.</p></div>
 </div>
 <div class="ph r-72 rv zoom" style="flex:1 1 100%"><img src="./site/img/marathon.jpg" alt="Peloton serré de marathon, photo en noir et blanc" width="1800" height="514" loading="lazy"></div>
+</div>
+</section>
+
+<section id="solution" class="sec dark">
+<div class="wrap">
+<div class="head rv">
+<p class="eyebrow c-vert">La solution</p>
+<h2 class="h2">Un seul fil officiel. Chaque message suivi.</h2>
+<p class="lead muted">Beyond Events réunit toute la communication de l'épreuve au même endroit. Chaque participant·e et chaque bénévole y entre avec son code personnel.</p>
+</div>
+<div class="funnel rv" role="img" aria-label="Groupe WhatsApp, e-mail, SMS et réseaux sociaux remplacés par un fil par épreuve">
+<span class="old" style="--i:0">Groupe WhatsApp</span>
+<span class="old" style="--i:1">E-mail</span>
+<span class="old" style="--i:2">SMS</span>
+<span class="old" style="--i:3">Réseaux sociaux</span>
+<svg width="28" height="24" viewBox="0 0 28 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h22M17 5l8 7-8 7"/></svg>
+<span class="new">Un fil par épreuve</span>
+</div>
+<div class="cards">
+<div class="sol rv" style="--d:0.00s"><span class="badge b-sent">Envoyé</span><h3 class="h3-l">Tout le monde le reçoit</h3><p>Le message arrive dans l'app de chaque personne inscrite. Pas de groupe à rejoindre, pas de boîte de réception à surveiller.</p></div>
+<div class="sol rv" style="--d:0.12s"><span class="badge b-important">Relancé</span><h3 class="h3-l">Personne n'est oublié</h3><p>Code non activé ou message non lu : la relance part toute seule, puis le SMS prend le relais selon vos réglages.</p></div>
+<div class="sol rv" style="--d:0.24s"><span class="badge b-read">Lu et confirmé</span><h3 class="h3-l">Vous le savez</h3><p>Chaque lecture et chaque confirmation s'affichent nom par nom. Vous savez qui a l'info avant le départ.</p></div>
+</div>
 </div>
 </section>
 

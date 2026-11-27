@@ -414,7 +414,6 @@ export function MessageDetail() {
     <>
       <Head title={m.title} sub={<><Link to={`/console/e/${ev.id}/messages`}>← Messages</Link> · {kindLabel(m.kind)} · {m.target_label || 'Tous'} · envoyé le {dateTimeFr(m.created_at)}</>}>
         <button type="button" className="btn primary" disabled={!todo.length} aria-expanded={relOpen} onClick={() => setRelOpen(!relOpen)}>Relancer les {todo.length}</button>
-        <button type="button" className="btn primary" disabled={!todo.length} aria-expanded={relOpen} onClick={() => setRelOpen(!relOpen)}>Relancer les {todo.length}</button>
         <button type="button" className="btn" disabled={!todo.length} onClick={() => exportCodes(ev.name, todo.map((x) => x.participants), 'participants')}>Exporter les {todo.length} à relancer</button>
       </Head>
       {relOpen && (

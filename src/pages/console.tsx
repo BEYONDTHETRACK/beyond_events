@@ -376,7 +376,7 @@ interface RecipientRow { participant_id: string; read_at: string | null; confirm
 export function MessageDetail() {
   const { ev } = useEv()
   const { mid } = useParams()
-  const [tab, setTab] = useState<'todo' | 'done'>('todo')
+  const [tab, setTab] = useState<'todo' | 'done' | 'unread' | 'readonly'>('todo')
   const notify = useToast()
   const [relOpen, setRelOpen] = useState(false)
   const [relChannel, setRelChannel] = useState<'app' | 'email' | 'sms'>('app')
@@ -399,7 +399,13 @@ export function MessageDetail() {
   const conf = r.filter((x) => x.confirmed_at).length
   const doneOf = (x: RecipientRow) => (m.require_confirm ? !!x.confirmed_at : !!x.read_at)
   const todo = r.filter((x) => !doneOf(x))
-  const rows = (tab === 'todo' ? todo : r.filter(doneOf)).sort((a, b) => (a.participants.bib ?? 0) - (b.participants.bib ?? 0))
+  // Avec confirmation demandée : trois groupes (pas lu, lu mais pas confirmé, confirmé).
+  const unread = r.filter((x) => !x.read_at)
+  const readOnly = r.filter((x) => x.read_at && !x.confirmed_at)
+  const shown = m.require_confirm
+    ? (tab === 'unread' ? unread : tab === 'readonly' ? readOnly : tab === 'done' ? r.filter((x) => x.confirmed_at) : todo)
+    : (tab === 'todo' ? todo : r.filter(doneOf))
+  const rows = shown.sort((a, b) => (a.participants.bib ?? 0) - (b.participants.bib ?? 0))
   const CHANNELS = { app: 'Notification', email: 'E-mail', sms: 'SMS' } as const
   const relance = async () => {
     setRelBusy(true)
@@ -436,22 +442,34 @@ export function MessageDetail() {
       <section className="panel">
         {m.body && <p className="card-text" style={{ background: 'var(--bg)', padding: 12, borderRadius: 10 }}>{m.body}</p>}
         <div className="chips" role="tablist">
-          <button type="button" role="tab" className="chip" aria-pressed={tab === 'todo'} onClick={() => setTab('todo')}>{m.require_confirm ? 'Pas confirmé' : 'Pas lu'} ({todo.length})</button>
-          <button type="button" role="tab" className="chip" aria-pressed={tab === 'done'} onClick={() => setTab('done')}>{m.require_confirm ? 'Confirmé' : 'Lu'} ({total - todo.length})</button>
+          {m.require_confirm ? (
+            <>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'todo'} onClick={() => setTab('todo')}>Pas confirmé ({todo.length})</button>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'unread'} onClick={() => setTab('unread')}>Pas lu ({unread.length})</button>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'readonly'} onClick={() => setTab('readonly')}>Lu, pas confirmé ({readOnly.length})</button>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'done'} onClick={() => setTab('done')}>Confirmé ({total - todo.length})</button>
+            </>
+          ) : (
+            <>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'todo'} onClick={() => setTab('todo')}>Pas lu ({todo.length})</button>
+              <button type="button" role="tab" className="chip" aria-pressed={tab === 'done'} onClick={() => setTab('done')}>Lu ({total - todo.length})</button>
+            </>
+          )}
         </div>
         <div className="table-wrap">
           <table className="t" style={{ minWidth: 620 }}>
-            <thead><tr><th>Dossard</th><th>Participant</th><th>Distance</th><th>Code activé</th><th>Lu</th><th>Téléphone</th></tr></thead>
+            <thead><tr><th>Dossard</th><th>Participant</th><th>Distance</th><th>Code activé</th><th>Lu</th>{m.require_confirm && <th>Confirmé</th>}<th>Téléphone</th></tr></thead>
             <tbody>
               {rows.map((x) => (
                 <tr key={x.participant_id}>
                   <td style={{ fontWeight: 700 }}>{x.participants.bib ?? '—'}</td><td>{x.participants.name}</td><td className="muted">{x.participants.distance}</td>
                   <td className={x.participants.activated_at ? 'ok' : 'ko'}>{x.participants.activated_at ? 'Oui' : 'Non'}</td>
                   <td className="muted">{x.read_at ? dateTimeFr(x.read_at) : '—'}</td>
+                  {m.require_confirm && <td className={x.confirmed_at ? 'ok' : x.read_at ? 'warn-text' : 'muted'}>{x.confirmed_at ? dateTimeFr(x.confirmed_at) : x.read_at ? 'Lu, pas confirmé' : '—'}</td>}
                   <td>{x.participants.phone ? <a href={`tel:${x.participants.phone.replace(/\s/g, '')}`}>{x.participants.phone}</a> : <span className="muted">—</span>}</td>
                 </tr>
               ))}
-              {!rows.length && <tr><td colSpan={6} className="muted">Personne dans cette liste.</td></tr>}
+              {!rows.length && <tr><td colSpan={m.require_confirm ? 7 : 6} className="muted">Personne dans cette liste.</td></tr>}
             </tbody>
           </table>
         </div>

@@ -191,6 +191,7 @@ table.t td { padding: 11px 8px; border-bottom: 1px solid #E6EBF0; vertical-align
 table.t tr.clickable { cursor: pointer; }
 table.t tr.clickable:hover td { background: #F4F6F8; }
 .ok { color: var(--vert-ink); }
+.warn-text { color: var(--jaune-ink); font-weight: 600; }
 .ko { color: var(--danger); }
 .split-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: #E6EBE8; }
 .split-bar div { transition: width .6s; }

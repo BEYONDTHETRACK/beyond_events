@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { appUrl, supabase } from '../lib/supabase'
-import { ago, dateFr, download, mapColumns, normLang, parseCsv, dateTimeFr, pct, rateLevel, toCsv, usePoll } from '../lib/util'
+import { ago, dateFr, download, mapColumns, normLang, parseCsv, dateTimeFr, pct, rateLevel, STATUSES, statusLabel, toCsv, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
 import type { DotationPack, EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
@@ -308,7 +308,7 @@ export function Compose() {
     (t.distance === 'Toutes' || p.distance === t.distance) && (t.format === 'Tous' || p.format === t.format)
     && (t.status === 'Tous' || p.status === t.status) && (t.lang === 'Tous' || p.lang === t.lang)
   const count = (people ?? []).filter(match).length
-  const label = [t.distance !== 'Toutes' ? t.distance : '', t.format !== 'Tous' ? t.format : '', t.status !== 'Tous' ? t.status : '', t.lang !== 'Tous' ? t.lang : ''].filter(Boolean).join(' · ') || 'Tous'
+  const label = [t.distance !== 'Toutes' ? t.distance : '', t.format !== 'Tous' ? t.format : '', t.status !== 'Tous' ? statusLabel(t.status) : '', t.lang !== 'Tous' ? t.lang : ''].filter(Boolean).join(' · ') || 'Tous'
   const send = async () => {
     setBusy(true)
     const { data, error } = await supabase.rpc('send_message', {
@@ -320,6 +320,12 @@ export function Compose() {
     notify(`Message publié pour ${count} participants.`)
     nav(`/console/e/${ev.id}/messages/${data}`)
   }
+  const statusRow = (
+    <div className="row" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <span className="small muted" style={{ width: 80, paddingTop: 10 }}>Statut</span>
+      <div className="chips" style={{ flex: 1 }}>{['Tous', ...STATUSES].map((o) => <button key={o} type="button" className="chip green" aria-pressed={t.status === o} onClick={() => setT({ ...t, status: o })}>{o === 'Tous' ? 'Tous' : statusLabel(o)}</button>)}</div>
+    </div>
+  )
   const chipRow = (labelTxt: string, key: keyof typeof t, opts: string[]) => (
     <div className="row" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
       <span className="small muted" style={{ width: 80, paddingTop: 10 }}>{labelTxt}</span>
@@ -341,7 +347,7 @@ export function Compose() {
             <div className="row"><h2 className="grow" style={{ fontSize: 16 }}>Destinataires</h2><span className="pill" style={{ background: 'var(--forest-soft)', color: 'var(--forest-dark)' }}>{count} participants</span></div>
             {chipRow('Distance', 'distance', distances)}
             {chipRow('Format', 'format', ['Tous', 'Solo', 'Duo'])}
-            {chipRow('Statut', 'status', ['Tous', 'inscrit', 'en course', 'abandon', 'finisher'])}
+            {statusRow}
             {chipRow('Langue', 'lang', ['Tous', 'FR', 'EN', 'ES'])}
           </section>
           <section className="panel">
@@ -537,7 +543,7 @@ export function Participants() {
                   <td className="muted">{p.lang}</td>
                   <td className="code">{p.code}</td>
                   <td className={p.activated_at ? 'ok' : 'ko'}>{p.activated_at ? ago(p.activated_at) : 'Non'}</td>
-                  <td><select className="select" aria-label={`Statut de ${p.name}`} value={p.status} onChange={(e) => setStatus(p, e.target.value)} style={{ minHeight: 36 }}>{['inscrit', 'en course', 'abandon', 'finisher'].map((s) => <option key={s}>{s}</option>)}</select></td>
+                  <td><select className="select" aria-label={`Statut de ${p.name}`} value={p.status} onChange={(e) => setStatus(p, e.target.value)} style={{ minHeight: 36 }}>{(STATUSES.includes(p.status as never) ? [...STATUSES] : [p.status, ...STATUSES]).map((st) => <option key={st} value={st}>{statusLabel(st)}</option>)}</select></td>
                   <td><button type="button" className="btn" style={{ minHeight: 36 }} onClick={() => remove(p)}>Supprimer</button></td>
                 </tr>
               ))}

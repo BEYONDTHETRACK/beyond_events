@@ -1,6 +1,6 @@
 export type Lang = 'FR' | 'EN' | 'ES'
 export type Kind = 'info' | 'alerte' | 'relance'
-export type RunnerStatus = 'inscrit' | 'en course' | 'abandon' | 'finisher'
+export type RunnerStatus = 'inscrit' | 'valide' | 'dns' | 'en course' | 'abandon' | 'finisher'
 export const PRACTICES = ['Bikepacking', 'Gravel', 'Route', 'Trail', 'Course à pied', 'Triathlon'] as const
 
 export interface EventRow {

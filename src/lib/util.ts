@@ -146,3 +146,10 @@ export function normLang(s: string | undefined): 'FR' | 'EN' | 'ES' {
   if (v.startsWith('ES') || v.startsWith('SP')) return 'ES'
   return 'FR'
 }
+
+// Statuts d'un participant : valeur stockée -> libellé affiché. « abandon » s'affiche DNF.
+export const STATUSES = ['inscrit', 'valide', 'dns', 'abandon', 'finisher'] as const
+const STATUS_LABELS: Record<string, string> = { inscrit: 'Inscrit', valide: 'Validé', dns: 'DNS', 'en course': 'En course', abandon: 'DNF', finisher: 'FINISHER' }
+export function statusLabel(s: string) {
+  return STATUS_LABELS[s] ?? s
+}

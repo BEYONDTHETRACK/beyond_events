@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { ago, dateFr, dateTimeFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
+import { ago, dateFr, dateTimeFr, statusLabel, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import type { ParticipantState } from '../lib/types'
 import { BackBar, ErrorNote, Icon, kindLabel, Loading, TabBar, useToast } from '../components/ui'
 
@@ -46,7 +46,7 @@ function Header() {
   return (
     <div className="app-header" style={{ background: ['#0E5E4E', '#0F1B2D'].includes(s.event.color) ? 'var(--nuit)' : s.event.color }}>
       <div className="row"><span className="title grow">{s.event.name}</span><span className="pill dark">{p.lang}</span></div>
-      <span className="sub">{p.bib ? `Dossard ${p.bib} · ` : ''}{p.distance || 'Distance à venir'} · {p.status}</span>
+      <span className="sub">{p.bib ? `Dossard ${p.bib} · ` : ''}{p.distance || 'Distance à venir'} · {statusLabel(p.status)}</span>
     </div>
   )
 }

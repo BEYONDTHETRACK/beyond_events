@@ -458,18 +458,18 @@ export function MessageDetail() {
         </div>
         <div className="table-wrap">
           <table className="t" style={{ minWidth: 620 }}>
-            <thead><tr><th>Dossard</th><th>Participant</th><th>Distance</th><th>Code activé</th><th>Lu</th>{m.require_confirm && <th>Confirmé</th>}<th>Téléphone</th></tr></thead>
+            <thead><tr><th>Dossard</th><th>Participant</th><th>Distance</th><th>Code activé</th><th>Lu</th><th>Confirmé</th><th>Téléphone</th></tr></thead>
             <tbody>
               {rows.map((x) => (
                 <tr key={x.participant_id}>
                   <td style={{ fontWeight: 700 }}>{x.participants.bib ?? '—'}</td><td>{x.participants.name}</td><td className="muted">{x.participants.distance}</td>
                   <td className={x.participants.activated_at ? 'ok' : 'ko'}>{x.participants.activated_at ? 'Oui' : 'Non'}</td>
                   <td className="muted">{x.read_at ? dateTimeFr(x.read_at) : '—'}</td>
-                  {m.require_confirm && <td className={x.confirmed_at ? 'ok' : x.read_at ? 'warn-text' : 'muted'}>{x.confirmed_at ? dateTimeFr(x.confirmed_at) : x.read_at ? 'Lu, pas confirmé' : '—'}</td>}
+                  <td className={x.confirmed_at ? 'ok' : m.require_confirm && x.read_at ? 'warn-text' : 'muted'}>{x.confirmed_at ? dateTimeFr(x.confirmed_at) : !m.require_confirm ? 'Non demandée' : x.read_at ? 'Lu, pas confirmé' : '—'}</td>
                   <td>{x.participants.phone ? <a href={`tel:${x.participants.phone.replace(/\s/g, '')}`}>{x.participants.phone}</a> : <span className="muted">—</span>}</td>
                 </tr>
               ))}
-              {!rows.length && <tr><td colSpan={m.require_confirm ? 7 : 6} className="muted">Personne dans cette liste.</td></tr>}
+              {!rows.length && <tr><td colSpan={7} className="muted">Personne dans cette liste.</td></tr>}
             </tbody>
           </table>
         </div>

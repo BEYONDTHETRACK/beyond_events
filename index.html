@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Anciens liens de la web app (elle était servie ici) : on les renvoie vers ./app/ */
+(function () {
+  var h = location.hash || '';
+  if (h.indexOf('#/') === 0 || /(^#|&)(access_token|refresh_token|error_description|type)=/.test(h)) {
+    location.replace('./app/' + location.search + h);
+  }
+})();
+document.documentElement.className = 'js';
+</script>
+<title>Beyond Events — un message envoyé, lu, confirmé</title>
+<meta name="description" content="Beyond Events relie le PC course à chaque participant·e et chaque bénévole d'une épreuve d'endurance. Vous savez qui a reçu l'info, qui l'a lue, qui l'a confirmée.">
+<meta name="theme-color" content="#0F1B2D">
+<meta property="og:title" content="Beyond Events — un message envoyé, lu, confirmé">
+<meta property="og:description" content="La communication des organisateur·rices d'épreuves d'endurance avec leurs participant·es et leurs bénévoles.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://beyondthetrack.github.io/beyond_events/site/img/vtt.jpg">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preload" href="./site/fonts/oswald-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./site/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Oswald";font-weight:500;font-display:swap;src:url(./site/fonts/oswald-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Oswald";font-weight:600;font-display:swap;src:url(./site/fonts/oswald-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Oswald";font-weight:700;font-display:swap;src:url(./site/fonts/oswald-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(./site/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(./site/fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-display:swap;src:url(./site/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;font-display:swap;src:url(./site/fonts/jetbrains-mono-latin-500-normal.woff2) format("woff2")}
+
+:root{
+  --nuit:#0F1B2D;--nuit-deep:#0B1422;--nuit-raised:#16243A;--nuit-line:#2A3A52;--nuit-line-strong:#6B7D95;--nuit-muted:#B8C4D2;
+  --surface:#F4F6F8;--white:#FFFFFF;--line:#D5DCE4;--line-strong:#7A899C;--ink:#0F1B2D;--ink-muted:#3B4A5E;
+  --cyan:#6EE7F9;--cyan-ink:#0E7490;--cyan-soft:#DDF8FC;--cyan-soft-n:#123346;
+  --orange:#FF5F1F;--orange-ink:#B93A00;--orange-soft:#FFE6DA;--orange-soft-n:#3A2216;--orange-ink-n:#FF8A57;
+  --vert:#8FF573;--vert-ink:#15803D;--vert-soft-n:#1B3A26;
+  --display:"Oswald","Arial Narrow",sans-serif;--sans:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);font-size:15px;line-height:22px;color:var(--ink);background:var(--surface);overflow-x:hidden}
+h1,h2,h3,p,ul{margin:0;padding:0}
+ul{list-style:none}
+img{display:block;max-width:100%}
+a{color:var(--cyan-ink)}
+a:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--cyan-ink);outline-offset:2px;border-radius:4px}
+.dark :focus-visible,header :focus-visible,footer :focus-visible{outline-color:var(--cyan)}
+section[id]{scroll-margin-top:84px}
+.wrap{max-width:1160px;margin:0 auto}
+.sec{padding:88px 24px}
+.dark{background:var(--nuit);color:#fff}
+.eyebrow{font-size:13px;line-height:18px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,3.4vw,40px);line-height:1.1;text-transform:uppercase}
+.h3{font-family:var(--display);font-weight:600;font-size:20px;line-height:24px;text-transform:uppercase}
+.h3-l{font-family:var(--display);font-weight:600;font-size:28px;line-height:32px;text-transform:uppercase}
+.lead{font-size:17px;line-height:26px}
+.mono{font-family:var(--mono);font-weight:500}
+.muted{color:var(--ink-muted)}
+.dark .muted{color:var(--nuit-muted)}
+.head{display:flex;flex-direction:column;gap:12px;max-width:640px;margin-bottom:40px}
+.cols{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.col{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.col-wide{flex:2 1 480px;min-width:0}
+.cards{display:flex;flex-wrap:wrap;gap:20px}
+.cards>*{flex:1 1 280px;min-width:0}
+.cards.tight{gap:16px}
+.cards.tight>*{flex-basis:210px}
+
+/* Boutons */
+.btn{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.02em;text-transform:uppercase;text-decoration:none;min-height:48px;padding:0 24px;border-radius:10px;border:1px solid var(--nuit-line-strong);background:transparent;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .2s var(--ease),box-shadow .2s var(--ease),background-color .2s,border-color .2s}
+.btn:hover{color:#fff;border-color:#fff;transform:translateY(-2px)}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:var(--nuit)}
+.btn-primary:hover{color:var(--nuit);border-color:var(--orange);box-shadow:0 10px 24px -8px rgba(255,95,31,.7)}
+.btn-primary svg{transition:transform .2s var(--ease)}
+.btn-primary:hover svg{transform:translateX(4px)}
+.btn-sm{min-height:44px;padding:0 16px}
+
+/* En-tête */
+header{position:sticky;top:0;z-index:20;background:var(--nuit);padding:14px 24px;transition:padding .25s var(--ease),box-shadow .25s,background-color .25s}
+header.scrolled{padding:8px 24px;background:rgba(15,27,45,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--nuit-line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 32px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-height:44px}
+.wordmark{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.04em;color:#fff}
+.wordmark i{font-style:normal;color:var(--orange)}
+nav{display:flex;flex-wrap:wrap;align-items:center;gap:4px 28px;font-weight:500}
+nav a.link{color:var(--surface);text-decoration:none;padding:11px 0;position:relative}
+nav a.link::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .25s var(--ease)}
+nav a.link:hover{color:#fff}
+nav a.link:hover::after{transform:scaleX(1)}
+
+/* Logo : le signal part, voyage, est confirmé */
+.logo .w,.logo .b{transform-box:fill-box;transform-origin:center}
+.js .logo .dot{animation:pop .5s var(--ease) both}
+.js .logo .w{stroke-dasharray:120;stroke-dashoffset:120;animation:draw .55s var(--ease) forwards}
+.js .logo .w1{animation-delay:.25s}.js .logo .w2{animation-delay:.5s}.js .logo .w3{animation-delay:.75s}
+.js .logo .b{animation:pop .5s var(--ease) 1.15s both}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+/* Accroche */
+.hero{position:relative;padding:72px 24px 88px;overflow:hidden}
+.hero .wrap{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:56px}
+.hero-copy{flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:24px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,5.4vw,72px);line-height:1.05;text-transform:uppercase}
+.hero h1 span{display:inline-block}
+.c-cyan{color:var(--cyan)}.c-orange{color:var(--orange)}.c-vert{color:var(--vert)}
+.js .hero h1 .k{opacity:.25;animation:light .6s var(--ease) forwards}
+.js .hero h1 .k1{animation-delay:.6s}.js .hero h1 .k2{animation-delay:1.1s}.js .hero h1 .k3{animation-delay:1.6s}
+@keyframes light{0%{opacity:.25;transform:translateY(6px)}100%{opacity:1;transform:none}}
+.rings{position:absolute;right:-120px;top:50%;width:900px;height:900px;transform:translateY(-50%);pointer-events:none}
+.rings circle{fill:none;stroke-width:1.5;opacity:0;transform-origin:center;animation:ring 6s linear infinite}
+.rings circle:nth-child(2){animation-delay:2s}.rings circle:nth-child(3){animation-delay:4s}
+@keyframes ring{0%{transform:scale(.25);opacity:0}15%{opacity:.35}100%{transform:scale(1);opacity:0}}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* Aperçu console */
+.console{flex:1 1 400px;min-width:0;position:relative;background:var(--nuit-deep);border:1px solid var(--nuit-line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.console-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:12px;line-height:16px;color:var(--nuit-muted)}
+.live{display:inline-flex;align-items:center;gap:8px}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--vert);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.msg{background:var(--nuit-raised);border:2px solid var(--orange);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;line-height:16px;color:var(--nuit-muted)}
+.msg h3{font-family:var(--display);font-weight:600;font-size:19px;line-height:23px;text-transform:uppercase;color:var(--surface)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;line-height:20px;font-weight:600;padding:0 8px;border-radius:6px;transition:background-color .4s,color .4s}
+.badge::before{content:"";width:8px;height:8px;border-radius:4px;background:currentColor}
+.b-important{background:var(--orange-soft-n);color:var(--orange-ink-n)}
+.b-sent{background:var(--cyan-soft-n);color:var(--cyan)}
+.b-read{background:var(--vert-soft-n);color:var(--vert)}
+.figure{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;color:var(--surface)}
+.figure small{font-size:20px;color:var(--nuit-muted)}
+.progress{display:flex;height:8px;border-radius:999px;background:var(--nuit-line);overflow:hidden}
+.progress i{display:block;height:100%;transition:width 1.4s var(--ease)}
+.p-read{background:var(--vert)}.p-sent{background:var(--cyan)}
+.legend{font-size:13px;line-height:18px;color:var(--nuit-muted)}
+.row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;background:var(--nuit-raised);border-radius:10px;padding:12px 14px;color:var(--surface);transition:background-color .4s}
+.row.flash{background:var(--vert-soft-n)}
+.row .mono{font-size:13px;color:var(--nuit-muted)}
+
+/* Photos */
+.ph{overflow:hidden;border-radius:14px;background:var(--nuit-raised)}
+.ph img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.ph:hover img{transform:scale(1.05)}
+.mosaic{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:16px;aspect-ratio:21/9;min-height:240px}
+.mosaic .ph{border-radius:22px}
+.mosaic .big{grid-column:span 2;grid-row:span 2}
+.band{padding:0 24px 88px}
+.r-1610{aspect-ratio:16/10}.r-169{aspect-ratio:16/9}.r-43{aspect-ratio:4/3}.r-72{aspect-ratio:7/2;min-height:140px}
+
+/* Blocs */
+.constat{background:var(--orange-soft)}
+.card{background:var(--white);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:8px;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 28px -16px rgba(15,27,45,.35)}
+.white{background:var(--white)}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:12px;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.step:hover{transform:translateY(-4px);box-shadow:0 14px 28px -16px rgba(15,27,45,.35)}
+.step .tick{height:8px;width:56px;border-radius:999px;transform-origin:left;transition:transform .7s var(--ease) .25s}
+.js .step:not(.in) .tick{transform:scaleX(0)}
+.step .num{font-size:22px;line-height:28px}
+.feat{background:var(--nuit-raised);border:1px solid var(--nuit-line);border-radius:14px;padding:20px 20px 28px;display:flex;flex-direction:column;gap:16px;transition:transform .25s var(--ease),border-color .25s}
+.feat:hover{transform:translateY(-4px);border-color:var(--nuit-line-strong)}
+.feat .ph{border-radius:10px}
+.feat ul{display:flex;flex-direction:column;gap:12px;color:var(--nuit-muted)}
+.feat strong{color:#fff;font-weight:600}
+.post{background:var(--nuit);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:8px;color:var(--nuit-muted);transition:transform .25s var(--ease)}
+.post:hover{transform:translateY(-4px)}
+.post .h3{color:#fff}
+.disc{background:var(--cyan-soft);padding:72px 24px}
+.disc .top{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:center;justify-content:space-between;margin-bottom:28px}
+.disc h2{flex:1 1 320px;font-family:var(--display);font-weight:600;font-size:28px;line-height:32px;text-transform:uppercase}
+.pills{flex:2 1 420px;display:flex;flex-wrap:wrap;gap:10px;font-weight:500}
+.pills span{background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:8px 16px;transition:background-color .2s,color .2s,border-color .2s}
+.pills span:hover{background:var(--nuit);border-color:var(--nuit);color:#fff}
+.thumbs{display:flex;flex-wrap:wrap;gap:16px}
+.thumbs .ph{flex:1 1 200px;min-width:0}
+
+/* Solution */
+.funnel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin-bottom:40px}
+.funnel .old{position:relative;border:1px solid var(--nuit-line-strong);border-radius:999px;padding:8px 16px;color:var(--nuit-muted);font-weight:500}
+.funnel .old::after{content:"";position:absolute;left:10px;right:10px;top:50%;height:2px;background:var(--orange);transform:scaleX(1);transform-origin:left;transition:transform .5s var(--ease);transition-delay:calc(.5s + var(--i,0) * .18s)}
+.js .funnel:not(.in) .old::after{transform:scaleX(0)}
+.funnel svg{color:var(--nuit-muted);flex:none}
+.funnel .new{background:var(--vert);color:var(--nuit);border-radius:999px;padding:9px 18px;font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.02em;text-transform:uppercase;transition:transform .5s var(--ease) 1.4s,opacity .5s 1.4s}
+.js .funnel:not(.in) .new{opacity:0;transform:scale(.8)}
+.sol{background:var(--nuit-raised);border:1px solid var(--nuit-line);border-radius:14px;padding:28px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:var(--nuit-muted);transition:transform .25s var(--ease),border-color .25s}
+.sol:hover{transform:translateY(-4px);border-color:var(--nuit-line-strong)}
+.sol .h3-l{color:#fff}
+.docs{margin-top:48px}
+.docs h3{font-family:var(--display);font-weight:600;font-size:22px;line-height:28px;text-transform:uppercase;color:#fff;margin-bottom:6px}
+.docs p.sub{color:var(--nuit-muted);margin-bottom:20px}
+.docs .grp{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--nuit-muted);margin:18px 0 10px}
+.docs ul{list-style:none;display:flex;flex-wrap:wrap;gap:10px}
+.docs li{border-radius:999px;padding:8px 16px;font-weight:500;border:1px solid var(--nuit-line-strong);color:#fff;background:var(--nuit-raised)}
+.docs li.ok::before{content:"";display:inline-block;width:8px;height:8px;border-radius:4px;background:var(--vert);margin-right:8px}
+.docs li.soon{border-style:dashed;color:var(--nuit-muted);background:transparent}
+#solution .head{max-width:none}
+#solution .head .lead{max-width:640px}
+#solution .h2{white-space:nowrap;font-size:min(40px,4.4vw)}
+
+
+/* Démo */
+.price{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:4px}
+form{flex:1 1 380px;min-width:0;color:#fff;background:var(--nuit);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;line-height:18px;font-weight:600}
+.field input{font:inherit;min-height:44px;padding:0 12px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);transition:box-shadow .2s}
+.field input:focus{outline:none;box-shadow:0 0 0 3px var(--cyan)}
+.hint{font-size:13px;line-height:18px;color:var(--nuit-muted)}
+form .btn{width:100%}
+
+footer{background:var(--nuit);padding:48px 24px;color:var(--nuit-muted);font-size:13px;line-height:18px}
+footer .bar{align-items:flex-start;gap:24px 48px}
+footer .who{display:flex;flex-direction:column;gap:8px}
+footer nav{font-size:15px;line-height:22px;font-weight:400}
+footer a{color:var(--surface)}
+footer a:hover{color:#fff}
+footer nav a{padding:11px 0}
+
+/* Apparition au défilement */
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+.js .rv.zoom{transform:scale(.96)}
+.js .rv.zoom.in{transform:none}
+.js .rv.done{transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .25s;transition-delay:0s}
+
+@media (max-width:640px){
+  .sec{padding:64px 20px}
+  .hero{padding:48px 20px 64px}
+  .band{padding:0 20px 64px}
+  header{padding:10px 20px}
+  nav{gap:0 18px}
+  header nav a.link{display:none}
+  header .bar{flex-wrap:nowrap;gap:12px}
+  header .wordmark{font-size:18px}
+  header .brand{gap:8px}
+  header .logo{width:34px;height:30px}
+  .mosaic{aspect-ratio:auto;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}
+  .mosaic .big{grid-column:span 2;grid-row:auto;aspect-ratio:16/10}
+  .mosaic .ph:not(.big){aspect-ratio:1/1}
+  .rings{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;transform:none}
+  .js .logo .w{stroke-dashoffset:0}
+  .js .hero h1 .k{opacity:1}
+  .rings{display:none}
+}
+</style>
+</head>
+<body>
+
+<header id="top-bar">
+<div class="wrap bar">
+<a class="brand" href="#top" aria-label="Beyond Events, retour en haut de page">
+<svg class="logo" width="42" height="36" viewBox="0 0 116 100" aria-hidden="true"><circle class="dot" cx="20" cy="50" r="11" fill="#6EE7F9" style="transform-box:fill-box;transform-origin:center"/><path class="w w1" d="M34.1 33.1A22 22 0 0 1 34.1 66.9" fill="none" stroke="#6EE7F9" stroke-width="9" stroke-linecap="round"/><path class="w w2" d="M43.1 22.4A36 36 0 0 1 43.1 77.6" fill="none" stroke="#FF5F1F" stroke-width="9" stroke-linecap="round"/><path class="w w3" d="M52.1 11.7A50 50 0 0 1 52.1 88.3" fill="none" stroke="#8FF573" stroke-width="9" stroke-linecap="round"/><g class="b"><path d="M84 12h24a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-14l-8 7v-7h-2a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6z" fill="#8FF573"/><path d="M89 26.5l5 5 9-9.5" fill="none" stroke="#0F1B2D" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+<span class="wordmark">BEYOND<i>.</i>EVENTS</span>
+</a>
+<nav aria-label="Navigation principale">
+<a class="link" href="#solution">Solution</a>
+<a class="link" href="#fonctionnement">Fonctionnement</a>
+<a class="link" href="#fonctionnalites">Fonctionnalités</a>
+<a class="link" href="#benevoles">Bénévoles</a>
+<a class="link" href="#demo">Tarifs</a>
+<a class="btn btn-sm" href="./app/">Ouvrir l'app</a>
+</nav>
+</div>
+</header>
+
+<main>
+<section id="top" class="hero dark">
+<svg class="rings" viewBox="0 0 900 900" aria-hidden="true"><circle cx="450" cy="450" r="440" stroke="#6EE7F9"/><circle cx="450" cy="450" r="440" stroke="#FF5F1F"/><circle cx="450" cy="450" r="440" stroke="#8FF573"/></svg>
+<div class="wrap">
+<div class="hero-copy">
+<p class="mono c-cyan rv" style="font-size:13px;line-height:18px">ULTRA-CYCLISME · TRAIL · BIKEPACKING</p>
+<h1 class="rv" style="--d:.08s">Un message <span class="k k1 c-cyan">envoyé</span>, <span class="k k2 c-orange">lu</span>, <span class="k k3 c-vert">confirmé</span>.</h1>
+<p class="lead muted rv" style="--d:.16s;max-width:520px">Beyond Events relie le PC course à chaque participant·e et chaque bénévole. Vous savez qui a reçu l'info, qui l'a lue, qui l'a confirmée. Avant, pendant et après l'épreuve.</p>
+<div class="actions rv" style="--d:.24s">
+<a class="btn btn-primary" href="#demo">Demander une démo <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<a class="btn" href="#fonctionnement">Voir comment ça marche</a>
+</div>
+<p class="muted rv" style="--d:.32s;font-size:13px;line-height:18px">App participant·e, console d'organisation, app bénévole. En français, anglais et espagnol.</p>
+</div>
+
+<div class="console rv zoom" style="--d:.3s" id="console" aria-label="Aperçu de la console du PC course">
+<div class="console-top mono"><span class="live">PC COURSE · BB27-4F8K</span><span>05:42</span></div>
+<div class="msg">
+<div class="msg-meta mono"><span class="badge b-important">Important</span><span>05:40 · 45 participant·es</span></div>
+<h3>Briefing avancé à 6 h 15</h3>
+<p class="muted">Devant la mairie. Confirmez votre présence avant 6 h.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p class="figure"><span id="count">42</span><small> / 45 confirmés</small></p>
+<div class="progress"><i class="p-read" id="bar-read" style="width:93.3%"></i><i class="p-sent" id="bar-sent" style="width:4.4%"></i></div>
+<p class="legend" id="legend">42 lus et confirmés · 2 envoyés, non lus · 1 code non activé</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div class="row" id="row17"><span><span class="mono">#017</span> · <span id="row17-text">reçu, non lu</span></span><span class="badge b-sent" id="row17-badge">Envoyé</span></div>
+<div class="row"><span><span class="mono">#044</span> · code non activé</span><span class="mono" style="font-size:12px">Bascule SMS 05:55</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="band dark" aria-label="Photos d'épreuves">
+<div class="wrap mosaic">
+<div class="ph big rv zoom"><img src="./site/img/vtt.jpg" alt="Deux vététistes en course sur une crête, vallée en arrière-plan" width="1600" height="1067" style="object-position:center 45%" fetchpriority="high"></div>
+<div class="ph rv zoom" style="--d:.12s"><img src="./site/img/trail-prairie.jpg" alt="Traileur sur une prairie d'altitude face aux montagnes" width="900" height="773" style="object-position:left center"></div>
+<div class="ph rv zoom" style="--d:.24s"><img src="./site/img/trail-crete.jpg" alt="Traileuse sur une crête herbeuse au-dessus des vallées" width="900" height="438" style="object-position:35% center"></div>
+</div>
+</section>
+
+<section class="sec constat">
+<div class="wrap cols">
+<div class="col rv">
+<p class="eyebrow" style="color:var(--orange-ink)">Le constat</p>
+<h2 class="h2">L'info se perd entre trop de canaux.</h2>
+<p class="lead muted">Groupe WhatsApp, e-mail, SMS, réseaux sociaux : chaque message part ailleurs.</p>
+<p class="lead" style="font-weight:600">Êtes-vous sûr·e que tou·tes vos participant·es ont bien reçu les infos ?</p>
+</div>
+<div class="col-wide cards tight">
+<div class="card rv" style="--d:0.08s"><h3 class="h3">Groupe WhatsApp</h3><p class="muted">Impossible de vérifier qui a rejoint le fil. La consigne se perd entre deux photos et vingt réponses.</p></div>
+<div class="card rv" style="--d:0.16s"><h3 class="h3">E-mail</h3><p class="muted">Il part dans les spams, ou se noie entre dix publicités dans la boîte de réception de vos participant·es.</p></div>
+<div class="card rv" style="--d:0.24s"><h3 class="h3">SMS</h3><p class="muted">Il part, mais rien ne vous dit qui l'a lu.</p></div>
+<div class="card rv" style="--d:0.32s"><h3 class="h3">Réseaux sociaux</h3><p class="muted">La publication ne touche que celles et ceux qui passent par là ce jour-là.</p></div>
+</div>
+<div class="ph r-72 rv zoom" style="flex:1 1 100%"><img src="./site/img/marathon.jpg" alt="Peloton serré de marathon, photo en noir et blanc" width="1800" height="514" loading="lazy"></div>
+</div>
+</section>
+
+<section id="solution" class="sec dark">
+<div class="wrap">
+<div class="head rv">
+<p class="eyebrow c-vert">La solution</p>
+<h2 class="h2">Un seul fil officiel. Chaque message suivi.</h2>
+<p class="lead muted">Beyond Events réunit toute la communication de l'épreuve au même endroit. Chaque participant·e et chaque bénévole y entre avec son code personnel.</p>
+</div>
+<div class="funnel rv" role="img" aria-label="Groupe WhatsApp, e-mail, SMS et réseaux sociaux remplacés par un fil par épreuve">
+<span class="old" style="--i:0">Groupe WhatsApp</span>
+<span class="old" style="--i:1">E-mail</span>
+<span class="old" style="--i:2">SMS</span>
+<span class="old" style="--i:3">Réseaux sociaux</span>
+<svg width="28" height="24" viewBox="0 0 28 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h22M17 5l8 7-8 7"/></svg>
+<span class="new">Un fil par épreuve</span>
+</div>
+<div class="cards">
+<div class="sol rv" style="--d:0.00s"><span class="badge b-sent">Envoyé</span><h3 class="h3-l">Tout le monde le reçoit</h3><p>Le message arrive dans l'app de chaque personne inscrite. Pas de groupe à rejoindre, pas de boîte de réception à surveiller.</p></div>
+<div class="sol rv" style="--d:0.12s"><span class="badge b-important">Relancé</span><h3 class="h3-l">Personne n'est oublié</h3><p>Code non activé ou message non lu : la relance part toute seule, puis le SMS prend le relais selon vos réglages.</p></div>
+<div class="sol rv" style="--d:0.24s"><span class="badge b-read">Lu et confirmé</span><h3 class="h3-l">Vous le savez</h3><p>Chaque lecture et chaque confirmation s'affichent nom par nom. Vous savez qui a l'info avant le départ.</p></div>
+</div>
+<div class="docs rv"><h3>Tous les documents de l'épreuve, au même endroit</h3><p class="sub">Ce que vos participant·es et vos bénévoles retrouvent dans l'app, sans fouiller leur boîte mail. Vous déposez le fichier, ils l'ouvrent depuis leur téléphone.</p><ul><li class="ok">Tracés GPX par distance</li><li class="ok">Messages et consignes</li><li class="ok">Lien d'inscription</li><li class="ok">Contacts utiles</li><li class="ok">Dotations des bénévoles</li><li class="ok">Road book PDF</li><li class="ok">Règlement</li><li class="ok">Plan d'accès et parkings</li><li class="ok">Programme et horaires</li><li class="ok">Briefing de course</li><li class="ok">Plan des postes</li><li class="ok">Liste de départ</li><li class="ok">Résultats et diplômes</li></ul></div>
+</div>
+</section>
+
+<section id="fonctionnement" class="sec white">
+<div class="wrap">
+<div class="head rv">
+<p class="eyebrow" style="color:var(--cyan-ink)">Fonctionnement</p>
+<h2 class="h2">Un événement, une room, un code par personne.</h2>
+</div>
+<div class="cards">
+<div class="step rv"><div class="tick" style="background:var(--cyan)"></div><p class="num mono" style="color:var(--cyan-ink)">01</p><h3 class="h3-l">Importez</h3><p class="muted">Chargez vos inscrit·es et vos bénévoles depuis un fichier CSV ou Excel. Chacun·e reçoit son code personnel. Tant qu'il n'est pas activé, la relance part toute seule.</p></div>
+<div class="step rv" style="--d:.12s"><div class="tick" style="background:var(--orange)"></div><p class="num mono" style="color:var(--orange-ink)">02</p><h3 class="h3-l">Envoyez</h3><p class="muted">Programmez vos messages, ciblez un groupe ou un poste, joignez le GPX. Sans lecture, le message bascule en SMS selon vos réglages.</p></div>
+<div class="step rv" style="--d:.24s"><div class="tick" style="background:var(--vert)"></div><p class="num mono" style="color:var(--vert-ink)">03</p><h3 class="h3-l">Vérifiez</h3><p class="muted">Envoyé, lu, confirmé : chaque statut s'affiche nom par nom. Vous relancez les trois qui manquent, pas les quarante-deux autres.</p></div>
+</div>
+</div>
+</section>
+
+<section id="fonctionnalites" class="sec dark">
+<div class="wrap">
+<div class="head rv">
+<p class="eyebrow c-cyan">Fonctionnalités</p>
+<h2 class="h2">Du premier message à la réinscription.</h2>
+</div>
+<div class="cards">
+<div class="feat rv">
+<div class="ph r-1610"><img src="./site/img/depart.jpg" alt="Foule regroupée derrière la banderole de départ" width="900" height="596" loading="lazy"></div>
+<h3 class="h3-l c-cyan">Avant</h3>
+<ul>
+<li><strong>Messages programmés.</strong> Le calendrier d'infos part sans vous.</li>
+<li><strong>Documents et GPX.</strong> Règlement, traces, roadbook au même endroit.</li>
+<li><strong>Confirmations obligatoires.</strong> Chaque participant·e valide, vous le voyez.</li>
+<li><strong>Contrôle matériel.</strong> Check-list, photo et décharge signée au départ.</li>
+</ul>
+</div>
+<div class="feat rv" style="--d:.12s">
+<div class="ph r-1610"><img src="./site/img/en-course.jpg" alt="Trois cyclistes en file pendant une course sur route" width="900" height="600" loading="lazy"></div>
+<h3 class="h3-l" style="color:var(--orange-ink-n)">Pendant</h3>
+<ul>
+<li><strong>Alertes ciblées.</strong> Par distance, catégorie ou secteur.</li>
+<li><strong>Bascule SMS.</strong> Vous fixez la règle, le message passe.</li>
+<li><strong>Abandon et incident.</strong> Un·e participant·e signale, le PC course est prévenu.</li>
+<li><strong>Carte et suivi en direct.</strong> Tracé, bénévoles et participant·es sur un écran.</li>
+<li><strong>Messagerie privée.</strong> Un fil entre l'organisation et chaque participant·e.</li>
+</ul>
+</div>
+<div class="feat rv" style="--d:.24s">
+<div class="ph r-1610"><img src="./site/img/medaille.jpg" alt="Finisher montrant sa médaille devant son dossard" width="900" height="601" loading="lazy"></div>
+<h3 class="h3-l c-vert">Après</h3>
+<ul>
+<li><strong>Résultats.</strong> Publiés dans la room dès l'arrivée.</li>
+<li><strong>Questionnaire.</strong> Les retours à chaud, pendant qu'ils sont frais.</li>
+<li><strong>Réinscription.</strong> L'édition suivante en un message.</li>
+<li><strong>Traduction automatique.</strong> Français, anglais, espagnol.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="benevoles" class="sec white">
+<div class="wrap cols">
+<div class="col rv">
+<p class="eyebrow" style="color:var(--vert-ink)">Bénévoles</p>
+<h2 class="h2">Chaque poste sait quoi faire, et quand.</h2>
+<p class="lead muted">L'app bénévole fonctionne hors ligne et se synchronise dès que le réseau revient. Au col comme au fond de la vallée.</p>
+<p class="mono" style="font-size:13px;line-height:18px;color:var(--cyan-ink)">CP2 · km 412 · 3 bénévoles · relève 14:00</p>
+<div class="ph r-1610"><img src="./site/img/mains.jpg" alt="Mains tendues au bord du parcours pour encourager le peloton" width="1000" height="664" loading="lazy"></div>
+</div>
+<div class="col-wide cards tight">
+<div class="post rv" style="--d:.06s"><h3 class="h3">Planning et postes</h3><p>Qui tient quel poste, à quelle heure. Présence confirmée par chacun·e.</p></div>
+<div class="post rv" style="--d:.12s"><h3 class="h3">Consignes par poste</h3><p>Un message pour le CP3 n'arrive qu'au CP3. Les contacts utiles sont sur la fiche.</p></div>
+<div class="post rv" style="--d:.18s"><h3 class="h3">Pointage et remontées</h3><p>Chaque bénévole pointe les passages et remonte l'info au PC course.</p></div>
+<div class="post rv" style="--d:.24s"><h3 class="h3">Dotations</h3><p>Tailles choisies par chaque bénévole. Talkies et trackers suivis : remis, rendus.</p></div>
+</div>
+</div>
+</section>
+
+<section class="disc">
+<div class="wrap">
+<div class="top rv">
+<h2>Pour toutes les épreuves d'endurance.</h2>
+<div class="pills"><span>Ultra-cyclisme</span><span>Bikepacking</span><span>Trail</span><span>Gravel</span><span>Raid multisport</span><span>Course d'un week-end</span></div>
+</div>
+<div class="thumbs">
+<div class="ph r-43 rv zoom"><img src="./site/img/peloton.jpg" alt="Peloton de cyclistes sur une route bordée d'arbres" width="800" height="1200" loading="lazy" style="object-position:center 52%"></div>
+<div class="ph r-43 rv zoom" style="--d:.08s"><img src="./site/img/desert.jpg" alt="Peloton en file sur une piste dans le désert" width="800" height="532" loading="lazy"></div>
+<div class="ph r-43 rv zoom" style="--d:.16s"><img src="./site/img/dossards.jpg" alt="Jambes et dossards pendant une course sur route" width="800" height="533" loading="lazy"></div>
+<div class="ph r-43 rv zoom" style="--d:.24s"><img src="./site/img/arrivee.jpg" alt="Coureuses souriantes à l'approche de l'arrivée" width="800" height="500" loading="lazy" style="object-position:center 35%"></div>
+</div>
+</div>
+</section>
+
+<section id="demo" class="sec">
+<div class="wrap cols">
+<div class="col rv" style="flex-basis:380px">
+<p class="eyebrow" style="color:var(--orange-ink)">Démo et tarifs</p>
+<h2 class="h2">Montrez-nous votre prochaine course.</h2>
+<p class="lead muted">Vingt minutes en visio. On ouvre une room avec vos données et vous envoyez votre premier message.</p>
+<div class="price"><p class="eyebrow muted" style="text-transform:none;letter-spacing:0">Tarif</p><p class="mono" style="font-size:22px;line-height:28px">Sur demande</p><p class="muted" style="font-size:13px;line-height:18px">Communiqué pendant la démo, selon la taille de votre épreuve.</p></div>
+<div class="ph r-169"><img src="./site/img/coucher-soleil.jpg" alt="Silhouettes en course sur une pente au coucher du soleil, face à la mer" width="1200" height="804" loading="lazy" style="object-position:center 70%"></div>
+</div>
+<form id="demo-form" class="rv" style="--d:.12s" action="mailto:contact@beyondthetrack.fr" method="post" enctype="text/plain">
+<div class="field"><label for="f-nom">Nom</label><input id="f-nom" name="Nom" type="text" autocomplete="name" required></div>
+<div class="field"><label for="f-mail">E-mail</label><input id="f-mail" name="E-mail" type="email" autocomplete="email" required></div>
+<div class="field"><label for="f-epreuve">Votre épreuve</label><input id="f-epreuve" name="Epreuve" type="text" aria-describedby="f-epreuve-hint"><span class="hint" id="f-epreuve-hint">Nom, discipline, date.</span></div>
+<div class="field"><label for="f-nb">Événements par an</label><input id="f-nb" name="Evenements par an" type="number" min="1" inputmode="numeric"></div>
+<button class="btn btn-primary" type="submit">Demander une démo</button>
+<p class="hint" id="form-note">Le bouton ouvre votre messagerie avec la demande prête à envoyer à contact@beyondthetrack.fr.</p>
+</form>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="wrap bar">
+<div class="who">
+<span class="wordmark" style="font-size:20px">BEYOND<i>.</i>EVENTS</span>
+<p>Un produit Beyond The Track.</p>
+<p>Photos libres de droits. Source : <a href="https://pixabay.com" rel="noopener">Pixabay</a>.</p>
+</div>
+<nav aria-label="Pied de page">
+<a href="#fonctionnalites">Fonctionnalités</a>
+<a href="mailto:contact@beyondthetrack.fr">Contact</a>
+<a href="./app/#/confidentialite">Confidentialité</a>
+<a href="./app/">Ouvrir l'app</a>
+</nav>
+</div>
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // En-tête compact après défilement
+  var bar = document.getElementById('top-bar');
+  function onScroll() { bar.classList.toggle('scrolled', window.scrollY > 12); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Apparition au défilement
+  var items = [].slice.call(document.querySelectorAll('.rv'));
+  if (reduce || !('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { var el = e.target; el.classList.add('in'); io.unobserve(el); setTimeout(function () { el.classList.add('done'); }, 1400); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  }
+
+  // Console : le compteur monte, puis le dossard 017 lit le message
+  var count = document.getElementById('count'), read = document.getElementById('bar-read'), sent = document.getElementById('bar-sent');
+  var legend = document.getElementById('legend'), row = document.getElementById('row17'), badge = document.getElementById('row17-badge'), text = document.getElementById('row17-text');
+  function state(n) {
+    count.textContent = n;
+    read.style.width = (n / 45 * 100).toFixed(1) + '%';
+    sent.style.width = ((44 - n) / 45 * 100).toFixed(1) + '%';
+    legend.textContent = n + ' lus et confirmés · ' + (44 - n) + (44 - n > 1 ? ' envoyés, non lus' : ' envoyé, non lu') + ' · 1 code non activé';
+    var lu = n >= 43;
+    badge.textContent = lu ? 'Lu' : 'Envoyé';
+    badge.className = 'badge ' + (lu ? 'b-read' : 'b-sent');
+    text.textContent = lu ? 'lu et confirmé' : 'reçu, non lu';
+    row.classList.toggle('flash', lu);
+  }
+  if (!reduce) {
+    read.style.width = '0%'; sent.style.width = '0%'; count.textContent = '0';
+    setTimeout(function () {
+      var t0 = null;
+      (function tick(t) {
+        if (!t0) t0 = t;
+        var p = Math.min((t - t0) / 1400, 1), n = Math.round(42 * (1 - Math.pow(1 - p, 3)));
+        count.textContent = n;
+        if (p < 1) requestAnimationFrame(tick);
+      })(performance.now());
+      state(42); count.textContent = '0';
+      var on = false;
+      setInterval(function () { on = !on; state(on ? 43 : 42); }, 4500);
+    }, 900);
+  }
+
+  // Formulaire : ouvre la messagerie avec la demande rédigée
+  var form = document.getElementById('demo-form');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = function (id) { return document.getElementById(id).value.trim(); };
+    var body = 'Bonjour,\n\nJe souhaite une démo de Beyond Events.\n\nNom : ' + v('f-nom') + '\nE-mail : ' + v('f-mail') + '\nÉpreuve : ' + v('f-epreuve') + '\nÉvénements par an : ' + v('f-nb') + '\n';
+    location.href = 'mailto:contact@beyondthetrack.fr?subject=' + encodeURIComponent('Demande de démo Beyond Events') + '&body=' + encodeURIComponent(body);
+    document.getElementById('form-note').textContent = 'Votre messagerie s\'ouvre avec la demande. Si rien ne se passe, écrivez à contact@beyondthetrack.fr.';
+  });
+})();
+</script>
+</body>
+</html>

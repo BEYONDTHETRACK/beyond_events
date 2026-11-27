@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { dateFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
@@ -8,8 +8,16 @@ import type { CodeSession, EventRow } from '../lib/types'
 import { BackBar, ErrorNote, Icon, Loading } from '../components/ui'
 import { Symbol, Wordmark } from '../components/Logo'
 
+// Reprise automatique de la session au lancement de l'app (une seule fois par ouverture)
+let resumed = false
+
 export function Bienvenue() {
   const s = getCodeSession()
+  if (s && !resumed) {
+    resumed = true
+    return <Navigate to={s.role === 'benevole' ? '/benevole' : '/course'} replace />
+  }
+  resumed = true
   return (
     <div className="screen welcome" style={{ background: 'var(--ink)', color: '#fff', padding: '48px 24px 28px', gap: 14 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>

@@ -264,7 +264,7 @@ function MessagesTable({ rows, base }: { rows: MsgWithStat[]; base: string }) {
               <td className="muted">{m.target_label || 'Tous'} ({m.stat.recipients})</td>
               <td className="muted">{dateTimeFr(m.created_at)}</td>
               <td><span className={`rate ${rateLevel(pct(m.stat.read, m.stat.recipients))}`}>{pct(m.stat.read, m.stat.recipients)} %</span></td>
-              <td>{m.require_confirm ? <span className={`rate ${rateLevel(pct(m.stat.confirmed, m.stat.recipients))}`}>{pct(m.stat.confirmed, m.stat.recipients)} %</span> : '—'}</td>
+              <td>{m.require_confirm ? <span className={`rate ${rateLevel(pct(m.stat.confirmed, m.stat.recipients))}`}>{pct(m.stat.confirmed, m.stat.recipients)} %</span> : <span className="muted">Non demandée</span>}</td>
             </tr>
           ))}
         </tbody>

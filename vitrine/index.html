@@ -192,6 +192,18 @@ nav a.link:hover::after{transform:scaleX(1)}
 .sol{background:var(--nuit-raised);border:1px solid var(--nuit-line);border-radius:14px;padding:28px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:var(--nuit-muted);transition:transform .25s var(--ease),border-color .25s}
 .sol:hover{transform:translateY(-4px);border-color:var(--nuit-line-strong)}
 .sol .h3-l{color:#fff}
+.docs{margin-top:48px}
+.docs h3{font-family:var(--display);font-weight:600;font-size:22px;line-height:28px;text-transform:uppercase;color:#fff;margin-bottom:6px}
+.docs p.sub{color:var(--nuit-muted);margin-bottom:20px}
+.docs .grp{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--nuit-muted);margin:18px 0 10px}
+.docs ul{list-style:none;display:flex;flex-wrap:wrap;gap:10px}
+.docs li{border-radius:999px;padding:8px 16px;font-weight:500;border:1px solid var(--nuit-line-strong);color:#fff;background:var(--nuit-raised)}
+.docs li.ok::before{content:"";display:inline-block;width:8px;height:8px;border-radius:4px;background:var(--vert);margin-right:8px}
+.docs li.soon{border-style:dashed;color:var(--nuit-muted);background:transparent}
+#solution .head{max-width:none}
+#solution .head .lead{max-width:640px}
+#solution .h2{white-space:nowrap;font-size:min(40px,4.4vw)}
+
 
 /* Démo */
 .price{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:4px}
@@ -344,6 +356,7 @@ footer nav a{padding:11px 0}
 <div class="sol rv" style="--d:0.12s"><span class="badge b-important">Relancé</span><h3 class="h3-l">Personne n'est oublié</h3><p>Code non activé ou message non lu : la relance part toute seule, puis le SMS prend le relais selon vos réglages.</p></div>
 <div class="sol rv" style="--d:0.24s"><span class="badge b-read">Lu et confirmé</span><h3 class="h3-l">Vous le savez</h3><p>Chaque lecture et chaque confirmation s'affichent nom par nom. Vous savez qui a l'info avant le départ.</p></div>
 </div>
+<div class="docs rv"><h3>Tous les documents de l'épreuve, au même endroit</h3><p class="sub">Ce que vos participant·es et vos bénévoles retrouvent dans l'app, sans fouiller leur boîte mail.</p><p class="grp">Disponible</p><ul><li class="ok">Tracés GPX par distance</li><li class="ok">Messages et consignes</li><li class="ok">Lien d'inscription</li><li class="ok">Contacts utiles</li><li class="ok">Dotations des bénévoles</li></ul><p class="grp">À venir</p><ul><li class="soon">Road book PDF</li><li class="soon">Règlement</li><li class="soon">Plan d'accès et parkings</li><li class="soon">Programme et horaires</li><li class="soon">Briefing de course</li><li class="soon">Plan des postes</li><li class="soon">Liste de départ</li><li class="soon">Résultats et diplômes</li></ul></div>
 </div>
 </section>
 

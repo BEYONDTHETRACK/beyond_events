@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { ago, dateFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
+import { ago, dateFr, dateTimeFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import type { ParticipantState } from '../lib/types'
 import { BackBar, ErrorNote, Icon, kindLabel, Loading, TabBar, useToast } from '../components/ui'
 
@@ -79,7 +79,7 @@ export function Fil() {
           return (
             <article key={m.id} className={`card ${todo && m.kind === 'alerte' ? 'alert' : ''}`}>
               <div className="card-meta">
-                <span className={`tag ${m.kind}`}>{kindLabel(m.kind).toUpperCase()} · {ago(m.created_at)}</span>
+                <span className={`tag ${m.kind}`}>{kindLabel(m.kind).toUpperCase()} · {dateTimeFr(m.created_at)}</span>
                 {m.require_confirm && m.confirmed_at && <span className="ok" style={{ fontWeight: 600 }}>✓ Confirmé</span>}
               </div>
               <div className="card-title">{m.title}</div>

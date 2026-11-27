@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { ago, getCodeSession, setCodeSession, usePoll } from '../lib/util'
+import { ago, dateTimeFr, getCodeSession, setCodeSession, usePoll } from '../lib/util'
 import type { VolunteerState } from '../lib/types'
 import { ErrorNote, Icon, Loading, TabBar, useToast } from '../components/ui'
 
@@ -121,7 +121,7 @@ export function Poste() {
         {extras.data && <ContactsCard x={extras.data} />}
         {s.post_messages.map((m) => (
           <section key={m.id} className="card soft">
-            <div className="card-meta" style={{ color: 'var(--forest-dark)', fontWeight: 700 }}><span>PC course → {m.all ? 'Tous les bénévoles' : post?.name}</span><span>{ago(m.created_at)}</span></div>
+            <div className="card-meta" style={{ color: 'var(--forest-dark)', fontWeight: 700 }}><span>PC course → {m.all ? 'Tous les bénévoles' : post?.name}</span><span>{dateTimeFr(m.created_at)}</span></div>
             <p className="card-text" style={{ color: 'var(--ink)' }}>{m.body}</p>
           </section>
         ))}

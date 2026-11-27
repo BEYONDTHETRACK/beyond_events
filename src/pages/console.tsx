@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { appUrl, supabase } from '../lib/supabase'
-import { ago, dateFr, download, mapColumns, normLang, parseCsv, pct, rateLevel, toCsv, usePoll } from '../lib/util'
+import { ago, dateFr, download, mapColumns, normLang, parseCsv, dateTimeFr, pct, rateLevel, toCsv, usePoll } from '../lib/util'
 import { PRACTICES } from '../lib/types'
 import type { DotationPack, EventRow, Message, Participant, Post, PrivateMessage, Report, Volunteer } from '../lib/types'
 import { ErrorNote, kindLabel, Loading, Progress, useToast } from '../components/ui'
@@ -262,7 +262,7 @@ function MessagesTable({ rows, base }: { rows: MsgWithStat[]; base: string }) {
             <tr key={m.id} className="clickable" onClick={() => nav(`${base}/messages/${m.id}`)}>
               <td><Link to={`${base}/messages/${m.id}`} style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'none' }}>{m.title}</Link><div className="small muted">{kindLabel(m.kind)}{m.require_confirm ? ' · confirmation demandée' : ''}</div></td>
               <td className="muted">{m.target_label || 'Tous'} ({m.stat.recipients})</td>
-              <td className="muted">{ago(m.created_at)}</td>
+              <td className="muted">{dateTimeFr(m.created_at)}</td>
               <td><span className={`rate ${rateLevel(pct(m.stat.read, m.stat.recipients))}`}>{pct(m.stat.read, m.stat.recipients)} %</span></td>
               <td>{m.require_confirm ? <span className={`rate ${rateLevel(pct(m.stat.confirmed, m.stat.recipients))}`}>{pct(m.stat.confirmed, m.stat.recipients)} %</span> : '—'}</td>
             </tr>
@@ -397,7 +397,7 @@ export function MessageDetail() {
   const rows = (tab === 'todo' ? todo : r.filter(doneOf)).sort((a, b) => (a.participants.bib ?? 0) - (b.participants.bib ?? 0))
   return (
     <>
-      <Head title={m.title} sub={<><Link to={`/console/e/${ev.id}/messages`}>← Messages</Link> · {kindLabel(m.kind)} · {m.target_label || 'Tous'} · envoyé {ago(m.created_at)}</>}>
+      <Head title={m.title} sub={<><Link to={`/console/e/${ev.id}/messages`}>← Messages</Link> · {kindLabel(m.kind)} · {m.target_label || 'Tous'} · envoyé le {dateTimeFr(m.created_at)}</>}>
         <button type="button" className="btn" disabled={!todo.length} onClick={() => exportCodes(ev.name, todo.map((x) => x.participants), 'participants')}>Exporter les {todo.length} à relancer</button>
       </Head>
       <div className="kpis">
@@ -420,7 +420,7 @@ export function MessageDetail() {
                 <tr key={x.participant_id}>
                   <td style={{ fontWeight: 700 }}>{x.participants.bib ?? '—'}</td><td>{x.participants.name}</td><td className="muted">{x.participants.distance}</td>
                   <td className={x.participants.activated_at ? 'ok' : 'ko'}>{x.participants.activated_at ? 'Oui' : 'Non'}</td>
-                  <td className="muted">{x.read_at ? ago(x.read_at) : '—'}</td>
+                  <td className="muted">{x.read_at ? dateTimeFr(x.read_at) : '—'}</td>
                   <td>{x.participants.phone ? <a href={`tel:${x.participants.phone.replace(/\s/g, '')}`}>{x.participants.phone}</a> : <span className="muted">—</span>}</td>
                 </tr>
               ))}

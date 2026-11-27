@@ -68,6 +68,12 @@ export function ago(iso: string | null | undefined) {
   if (s < 7 * 86400) return `il y a ${Math.round(s / 86400)} j`
   return d.toLocaleDateString('fr-FR')
 }
+// Date et heure exactes, ex. « 27/11/2026 à 14 h 03 ».
+export function dateTimeFr(iso: string | null | undefined) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return `${d.toLocaleDateString('fr-FR')} à ${d.getHours()} h ${String(d.getMinutes()).padStart(2, '0')}`
+}
 export function dateFr(iso: string | null | undefined) {
   if (!iso) return 'Date à venir'
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
